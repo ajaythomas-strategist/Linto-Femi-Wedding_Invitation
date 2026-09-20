@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 80" width="100%" height="auto" fill="none">
+  <defs>
+    <linearGradient id="goldSprigGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#eddba8"/>
+      <stop offset="50%" stop-color="#caa359"/>
+      <stop offset="100%" stop-color="#936f2a"/>
+    </linearGradient>
+    <filter id="softSprigShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#143020" flood-opacity="0.1"/>
+    </filter>
+  </defs>
+
+  <!-- Left Golden Flourish Line (x: 20 -> 220) -->
+  <g stroke="url(#goldSprigGrad)" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M40 40 C70 40, 110 38, 140 40 C170 42, 200 40, 225 40" />
+    <path d="M70 40 C95 28, 125 28, 150 40" stroke-width="0.85" opacity="0.8"/>
+    <path d="M35 40 C35 34, 42 34, 43 39 C44 44, 38 46, 32 42 C28 38, 30 30, 36 28 C44 26, 48 32, 45 38" stroke-width="0.9" opacity="0.85"/>
+    <circle cx="20" cy="40" r="2" fill="#caa359"/>
+    <circle cx="110" cy="31" r="1.5" fill="#caa359"/>
+  </g>
+
+  <!-- Right Golden Flourish Line (x: 320 -> 520) -->
+  <g stroke="url(#goldSprigGrad)" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M315 40 C340 40, 370 42, 400 40 C430 38, 470 40, 500 40" />
+    <path d="M390 40 C415 28, 445 28, 470 40" stroke-width="0.85" opacity="0.8"/>
+    <path d="M505 40 C505 34, 498 34, 497 39 C496 44, 502 46, 508 42 C512 38, 510 30, 504 28 C496 26, 492 32, 495 38" stroke-width="0.9" opacity="0.85"/>
+    <circle cx="520" cy="40" r="2" fill="#caa359"/>
+    <circle cx="430" cy="31" r="1.5" fill="#caa359"/>
+  </g>
+
+  <!-- Center Botanical Cluster (Center: 270, 40) -->
+  <g filter="url(#softSprigShadow)">
+    <!-- Back tier sage leaves -->
+    <path d="M255 35 C235 25, 228 35, 235 45 C244 52, 258 45, 255 35 Z" fill="#8ea693" opacity="0.8"/>
+    <path d="M285 35 C305 25, 312 35, 305 45 C296 52, 282 45, 285 35 Z" fill="#8ea693" opacity="0.8"/>
+    <path d="M260 48 C242 58, 240 68, 250 70 C262 68, 268 56, 260 48 Z" fill="#75937d" opacity="0.85"/>
+    <path d="M280 48 C298 58, 300 68, 290 70 C278 68, 272 56, 280 48 Z" fill="#75937d" opacity="0.85"/>
+    
+    <!-- Top central upward olive leaves -->
+    <path d="M270 30 C265 12, 275 12, 270 30 Z" fill="#5a7a63" opacity="0.9"/>
+    <path d="M268 32 C255 18, 265 14, 270 28 Z" fill="#6d8c75" opacity="0.9"/>
+    <path d="M272 32 C285 18, 275 14, 270 28 Z" fill="#6d8c75" opacity="0.9"/>
+
+    <!-- Mid & foreground round eucalyptus leaves -->
+    <path d="M260 38 C248 30, 242 42, 250 50 C260 55, 266 45, 260 38 Z" fill="#52725a" opacity="0.95"/>
+    <path d="M280 38 C292 30, 298 42, 290 50 C280 55, 274 45, 280 38 Z" fill="#52725a" opacity="0.95"/>
+    <path d="M270 42 C258 48, 265 62, 274 58 C282 52, 278 44, 270 42 Z" fill="#44644c" opacity="0.95"/>
+
+    <!-- Delicate White Blossom Buds Center -->
+    <circle cx="265" cy="38" r="3.2" fill="#ffffff"/>
+    <circle cx="265" cy="38" r="1.2" fill="#caa359"/>
+    <circle cx="275" cy="38" r="3.2" fill="#ffffff"/>
+    <circle cx="275" cy="38" r="1.2" fill="#caa359"/>
+    <circle cx="270" cy="46" r="2.8" fill="#ffffff"/>
+    <circle cx="270" cy="46" r="1.0" fill="#caa359"/>
+    <circle cx="258" cy="46" r="2.2" fill="#faf8f2"/>
+    <circle cx="282" cy="46" r="2.2" fill="#faf8f2"/>
+  </g>
+</svg>

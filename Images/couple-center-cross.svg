@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" width="100%" height="auto" fill="none">
+  <defs>
+    <linearGradient id="crossGoldCouple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#eddba8"/>
+      <stop offset="45%" stop-color="#caa359"/>
+      <stop offset="100%" stop-color="#936f2a"/>
+    </linearGradient>
+    <filter id="coupleGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#143020" flood-opacity="0.1"/>
+    </filter>
+  </defs>
+
+  <!-- Left Olive Sprig -->
+  <g filter="url(#coupleGlow)">
+    <path d="M105 125 C85 110, 60 85, 52 50" stroke="#75937d" stroke-width="1.2" fill="none"/>
+    <path d="M92 108 C75 100, 65 108, 72 118 C80 122, 90 116, 92 108 Z" fill="#6d8c75" opacity="0.88"/>
+    <path d="M78 88 C60 76, 52 85, 58 96 C66 102, 76 96, 78 88 Z" fill="#5a7a63" opacity="0.92"/>
+    <path d="M66 66 C48 52, 42 62, 46 72 C54 78, 64 74, 66 66 Z" fill="#4d6d55" opacity="0.95"/>
+    <path d="M54 48 C42 32, 50 25, 56 38 C58 46, 56 46, 54 48 Z" fill="#5a7a63" opacity="0.9"/>
+    <!-- Small olive fruit -->
+    <ellipse cx="62" cy="85" rx="3.5" ry="4.5" transform="rotate(-15 62 85)" fill="#3d5843"/>
+  </g>
+
+  <!-- Right Olive Sprig -->
+  <g filter="url(#coupleGlow)">
+    <path d="M135 125 C155 110, 180 85, 188 50" stroke="#75937d" stroke-width="1.2" fill="none"/>
+    <path d="M148 108 C165 100, 175 108, 168 118 C160 122, 150 116, 148 108 Z" fill="#6d8c75" opacity="0.88"/>
+    <path d="M162 88 C180 76, 188 85, 182 96 C174 102, 164 96, 162 88 Z" fill="#5a7a63" opacity="0.92"/>
+    <path d="M174 66 C192 52, 198 62, 194 72 C186 78, 176 74, 174 66 Z" fill="#4d6d55" opacity="0.95"/>
+    <path d="M186 48 C198 32, 190 25, 184 38 C182 46, 184 46, 186 48 Z" fill="#5a7a63" opacity="0.9"/>
+    <!-- Small olive fruit -->
+    <ellipse cx="178" cy="85" rx="3.5" ry="4.5" transform="rotate(15 178 85)" fill="#3d5843"/>
+  </g>
+
+  <!-- Center Golden Cross (Center: 120, 80) -->
+  <g filter="url(#coupleGlow)">
+    <path d="M116 35 C116 33, 118 31, 120 31 C122 31, 124 33, 124 35 L124 60 L144 60 C146 60, 148 62, 148 64 C148 66, 146 68, 144 68 L124 68 L124 125 C124 127, 122 129, 120 129 C118 129, 116 127, 116 125 L116 68 L96 68 C94 68, 92 66, 92 64 C92 62, 94 60, 96 60 L116 60 Z"
+          fill="url(#crossGoldCouple)" stroke="#936f2a" stroke-width="1.1"/>
+    <!-- Inner bright golden line -->
+    <line x1="120" y1="36" x2="120" y2="124" stroke="#fff4cf" stroke-width="1.2" stroke-linecap="round" opacity="0.85"/>
+    <line x1="98" y1="64" x2="142" y2="64" stroke="#fff4cf" stroke-width="1.2" stroke-linecap="round" opacity="0.85"/>
+  </g>
+</svg>

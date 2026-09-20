@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="100%" height="auto" fill="none">
+  <defs>
+    <linearGradient id="goldCornerStem" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#eddba8"/>
+      <stop offset="50%" stop-color="#caa359"/>
+      <stop offset="100%" stop-color="#936f2a"/>
+    </linearGradient>
+    <filter id="softCornerGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#143020" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Golden Delicate Wire Sprigs radiating outwards -->
+  <g stroke="url(#goldCornerStem)" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M15 15 C60 50, 110 100, 140 170 C160 215, 180 260, 210 295" stroke-width="1.2" opacity="0.85"/>
+    <path d="M70 70 C120 80, 180 110, 230 150 C265 180, 290 215, 305 245" stroke-width="0.9" opacity="0.75"/>
+    <path d="M105 140 C140 160, 180 200, 215 250" stroke-width="0.8" opacity="0.7"/>
+
+    <!-- Small golden leaves & looplets -->
+    <path d="M140 170 C155 160, 165 165, 160 175 C152 182, 142 178, 140 170 Z" fill="#caa359" fill-opacity="0.3" stroke-width="1"/>
+    <path d="M180 220 C195 210, 205 215, 200 226 C192 232, 182 228, 180 220 Z" fill="#caa359" fill-opacity="0.3" stroke-width="1"/>
+    <path d="M230 150 C242 140, 252 145, 248 155 C240 162, 232 158, 230 150 Z" fill="#caa359" fill-opacity="0.3" stroke-width="1"/>
+    
+    <circle cx="210" cy="295" r="2.4" fill="#caa359"/>
+    <circle cx="305" cy="245" r="2.0" fill="#caa359"/>
+    <circle cx="215" cy="250" r="1.8" fill="#caa359"/>
+    <circle cx="165" cy="115" r="1.8" fill="#caa359"/>
+  </g>
+
+  <!-- Watercolor Eucalyptus Leaves (curving gracefully from top-left) -->
+  <g filter="url(#softCornerGlow)">
+    <!-- Back tier sage leaves -->
+    <path d="M40 25 C65 20, 85 38, 75 60 C62 72, 40 55, 40 25 Z" fill="#8ea693" opacity="0.75"/>
+    <path d="M75 55 C102 45, 125 65, 112 90 C96 105, 72 85, 75 55 Z" fill="#9db4a2" opacity="0.8"/>
+    <path d="M50 75 C40 102, 60 125, 85 115 C100 100, 80 72, 50 75 Z" fill="#849e8a" opacity="0.75"/>
+    <path d="M105 95 C135 85, 160 108, 145 135 C128 152, 102 130, 105 95 Z" fill="#75937d" opacity="0.85"/>
+    <path d="M85 125 C75 155, 98 180, 125 168 C142 152, 120 122, 85 125 Z" fill="#6d8c75" opacity="0.8"/>
+
+    <!-- Mid tier round eucalyptus leaves -->
+    <path d="M135 140 C165 130, 188 155, 172 182 C155 198, 130 175, 135 140 Z" fill="#5a7a63" opacity="0.9"/>
+    <path d="M115 175 C102 205, 128 230, 155 218 C172 200, 150 170, 115 175 Z" fill="#6a8a73" opacity="0.9"/>
+    <path d="M165 185 C195 175, 218 200, 202 228 C185 244, 160 220, 165 185 Z" fill="#52725a" opacity="0.92"/>
+    <path d="M145 225 C132 255, 158 280, 185 268 C202 250, 180 220, 145 225 Z" fill="#608068" opacity="0.88"/>
+
+    <!-- Foreground slender olive leaves -->
+    <path d="M80 35 C120 50, 130 65, 88 55 C65 48, 70 38, 80 35 Z" fill="#4d6d55" opacity="0.95"/>
+    <path d="M115 80 C160 98, 170 115, 125 102 C100 92, 105 82, 115 80 Z" fill="#44644c" opacity="0.95"/>
+    <path d="M145 130 C190 148, 200 165, 155 152 C130 142, 135 132, 145 130 Z" fill="#587860" opacity="0.95"/>
+    <path d="M175 180 C220 198, 230 215, 185 202 C160 192, 165 182, 175 180 Z" fill="#44644c" opacity="0.95"/>
+
+    <!-- Tiny white buds -->
+    <circle cx="108" cy="70" r="3" fill="#ffffff" opacity="0.95"/>
+    <circle cx="108" cy="70" r="1.2" fill="#caa359"/>
+    <circle cx="140" cy="115" r="3" fill="#ffffff" opacity="0.95"/>
+    <circle cx="140" cy="115" r="1.2" fill="#caa359"/>
+    <circle cx="170" cy="165" r="3" fill="#ffffff" opacity="0.95"/>
+    <circle cx="170" cy="165" r="1.2" fill="#caa359"/>
+  </g>
+</svg>

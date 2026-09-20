@@ -1,0 +1,258 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 180" width="100%" height="auto" fill="none">
+  <defs>
+    <!-- Radiant gold gradients -->
+    <linearGradient id="goldStem" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#eddba8"/>
+      <stop offset="40%" stop-color="#caa359"/>
+      <stop offset="100%" stop-color="#936f2a"/>
+    </linearGradient>
+    <linearGradient id="goldRay" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0e2b6" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#caa359" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#eddba8" stop-opacity="0.45"/>
+      <stop offset="70%" stop-color="#caa359" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#caa359" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Filter for soft leaf shadow -->
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#143020" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <!-- 1. SUNBURST RAYS & GLOW BEHIND CROSS (Center 380, 72) -->
+  <circle cx="380" cy="72" r="60" fill="url(#sunGlow)" />
+  <g stroke="url(#goldStem)" stroke-width="0.85" opacity="0.75">
+    <!-- Radiating fine rays -->
+    <line x1="380" y1="72" x2="380" y2="12" />
+    <line x1="380" y1="72" x2="395" y2="15" />
+    <line x1="380" y1="72" x2="410" y2="23" />
+    <line x1="380" y1="72" x2="423" y2="35" />
+    <line x1="380" y1="72" x2="433" y2="52" />
+    <line x1="380" y1="72" x2="438" y2="72" />
+    <line x1="380" y1="72" x2="433" y2="92" />
+    <line x1="380" y1="72" x2="423" y2="109" />
+    <line x1="380" y1="72" x2="410" y2="121" />
+    <line x1="380" y1="72" x2="395" y2="129" />
+    <line x1="380" y1="72" x2="380" y2="132" />
+    <line x1="380" y1="72" x2="365" y2="129" />
+    <line x1="380" y1="72" x2="350" y2="121" />
+    <line x1="380" y1="72" x2="337" y2="109" />
+    <line x1="380" y1="72" x2="327" y2="92" />
+    <line x1="380" y1="72" x2="322" y2="72" />
+    <line x1="380" y1="72" x2="327" y2="52" />
+    <line x1="380" y1="72" x2="337" y2="35" />
+    <line x1="380" y1="72" x2="350" y2="23" />
+    <line x1="380" y1="72" x2="365" y2="15" />
+    <!-- Secondary shorter rays -->
+    <line x1="380" y1="72" x2="388" y2="28" stroke-width="0.6"/>
+    <line x1="380" y1="72" x2="403" y2="34" stroke-width="0.6"/>
+    <line x1="380" y1="72" x2="416" y2="46" stroke-width="0.6"/>
+    <line x1="380" y1="72" x2="423" y2="62" stroke-width="0.6"/>
+    <line x1="380" y1="72" x2="423" y2="82" stroke-width="0.6"/>
+    <line x1="380" y1="72" x2="416" y2="98" stroke-width="0.6"/>
+    <line x1="380" y1="72" x2="403" y2="110" stroke-width="0.6"/>
+    <line x1="380" y1="72" x2="388" y2="116" stroke-width="0.6"/>
+    <line x1="380" y1="72" x2="372" y2="116" stroke-width="0.6"/>
+    <line x1="380" y1="72" x2="357" y2="110" stroke-width="0.6"/>
+    <line x1="380" y1="72" x2="344" y2="98" stroke-width="0.6"/>
+    <line x1="380" y1="72" x2="337" y2="82" stroke-width="0.6"/>
+    <line x1="380" y1="72" x2="337" y2="62" stroke-width="0.6"/>
+    <line x1="380" y1="72" x2="344" y2="46" stroke-width="0.6"/>
+    <line x1="380" y1="72" x2="357" y2="34" stroke-width="0.6"/>
+    <line x1="380" y1="72" x2="372" y2="28" stroke-width="0.6"/>
+  </g>
+
+  <!-- 2. GOLD WIRE BOTANICAL BRANCHES LEFT (x: 50 -> 340) -->
+  <g stroke="url(#goldStem)" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- Main undulating branch left -->
+    <path d="M330 85 C270 70, 200 95, 130 75 C95 65, 60 70, 45 74" stroke-width="1.3"/>
+    <path d="M250 78 C210 50, 160 55, 110 40 C90 35, 75 38, 65 42" stroke-width="1.0" opacity="0.85"/>
+    <path d="M220 86 C180 110, 140 105, 95 115 C75 120, 60 115, 50 110" stroke-width="0.9" opacity="0.8"/>
+    
+    <!-- Golden leaf sprigs left -->
+    <path d="M125 74 C115 62, 105 65, 108 77 C115 80, 122 78, 125 74 Z" fill="#caa359" fill-opacity="0.35" stroke-width="1.1"/>
+    <path d="M85 68 C72 58, 62 62, 68 73 C75 76, 82 72, 85 68 Z" fill="#caa359" fill-opacity="0.35" stroke-width="1.1"/>
+    <path d="M155 54 C142 42, 132 46, 138 56 C145 60, 152 57, 155 54 Z" fill="#caa359" fill-opacity="0.3" stroke-width="1"/>
+    <path d="M100 38 C88 28, 78 32, 85 41 C92 44, 98 41, 100 38 Z" fill="#caa359" fill-opacity="0.3" stroke-width="1"/>
+    <path d="M140 104 C130 116, 120 114, 122 102 C128 98, 136 100, 140 104 Z" fill="#caa359" fill-opacity="0.3" stroke-width="1"/>
+    <path d="M90 114 C78 124, 68 120, 72 110 C80 107, 87 110, 90 114 Z" fill="#caa359" fill-opacity="0.3" stroke-width="1"/>
+
+    <!-- Golden berries / buds left -->
+    <circle cx="50" cy="74" r="2.4" fill="#caa359"/>
+    <circle cx="70" cy="41" r="2.0" fill="#caa359"/>
+    <circle cx="55" cy="110" r="2.0" fill="#caa359"/>
+    <circle cx="112" cy="76" r="1.8" fill="#caa359"/>
+    <circle cx="170" cy="58" r="1.8" fill="#caa359"/>
+    <circle cx="145" cy="108" r="1.8" fill="#caa359"/>
+  </g>
+
+  <!-- 3. GOLD WIRE BOTANICAL BRANCHES RIGHT (x: 420 -> 710) -->
+  <g stroke="url(#goldStem)" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- Main undulating branch right -->
+    <path d="M430 85 C490 70, 560 95, 630 75 C665 65, 700 70, 715 74" stroke-width="1.3"/>
+    <path d="M510 78 C550 50, 600 55, 650 40 C670 35, 685 38, 695 42" stroke-width="1.0" opacity="0.85"/>
+    <path d="M540 86 C580 110, 620 105, 665 115 C685 120, 700 115, 710 110" stroke-width="0.9" opacity="0.8"/>
+    
+    <!-- Golden leaf sprigs right -->
+    <path d="M635 74 C645 62, 655 65, 652 77 C645 80, 638 78, 635 74 Z" fill="#caa359" fill-opacity="0.35" stroke-width="1.1"/>
+    <path d="M675 68 C688 58, 698 62, 692 73 C685 76, 678 72, 675 68 Z" fill="#caa359" fill-opacity="0.35" stroke-width="1.1"/>
+    <path d="M605 54 C618 42, 628 46, 622 56 C615 60, 608 57, 605 54 Z" fill="#caa359" fill-opacity="0.3" stroke-width="1"/>
+    <path d="M660 38 C672 28, 682 32, 675 41 C668 44, 662 41, 660 38 Z" fill="#caa359" fill-opacity="0.3" stroke-width="1"/>
+    <path d="M620 104 C630 116, 640 114, 638 102 C632 98, 624 100, 620 104 Z" fill="#caa359" fill-opacity="0.3" stroke-width="1"/>
+    <path d="M670 114 C682 124, 692 120, 688 110 C680 107, 673 110, 670 114 Z" fill="#caa359" fill-opacity="0.3" stroke-width="1"/>
+
+    <!-- Golden berries / buds right -->
+    <circle cx="710" cy="74" r="2.4" fill="#caa359"/>
+    <circle cx="690" cy="41" r="2.0" fill="#caa359"/>
+    <circle cx="705" cy="110" r="2.0" fill="#caa359"/>
+    <circle cx="648" cy="76" r="1.8" fill="#caa359"/>
+    <circle cx="590" cy="58" r="1.8" fill="#caa359"/>
+    <circle cx="615" cy="108" r="1.8" fill="#caa359"/>
+  </g>
+
+  <!-- 4. LUSH WATERCOLOR EUCALYPTUS & OLIVE LEAVES LEFT (x: 180 -> 345) -->
+  <g filter="url(#softGlow)">
+    <!-- Back tier sage leaves -->
+    <path d="M210 70 C190 52, 175 65, 185 82 C198 90, 215 80, 210 70 Z" fill="#8ea693" opacity="0.75"/>
+    <path d="M245 55 C228 36, 212 45, 220 62 C230 72, 248 65, 245 55 Z" fill="#9db4a2" opacity="0.8"/>
+    <path d="M230 95 C210 108, 195 98, 202 82 C215 75, 232 85, 230 95 Z" fill="#849e8a" opacity="0.75"/>
+    <path d="M275 42 C260 22, 242 30, 248 48 C258 58, 276 52, 275 42 Z" fill="#75937d" opacity="0.85"/>
+    <path d="M265 110 C248 126, 232 118, 238 100 C250 92, 266 100, 265 110 Z" fill="#6d8c75" opacity="0.8"/>
+
+    <!-- Mid tier eucalyptus round leaves -->
+    <path d="M280 72 C262 55, 245 68, 255 85 C268 95, 285 85, 280 72 Z" fill="#5a7a63" opacity="0.9"/>
+    <path d="M305 50 C290 32, 272 40, 278 58 C290 68, 308 60, 305 50 Z" fill="#6a8a73" opacity="0.9"/>
+    <path d="M298 102 C280 118, 262 108, 270 90 C282 82, 300 90, 298 102 Z" fill="#52725a" opacity="0.92"/>
+    <path d="M328 38 C315 20, 298 25, 302 42 C312 52, 330 46, 328 38 Z" fill="#7c9b85" opacity="0.88"/>
+    <path d="M325 112 C308 128, 292 120, 298 102 C310 95, 326 102, 325 112 Z" fill="#608068" opacity="0.88"/>
+
+    <!-- Fore tier foreground eucalyptus clusters -->
+    <path d="M320 75 C305 60, 290 70, 298 85 C310 95, 325 85, 320 75 Z" fill="#44644c" opacity="0.95"/>
+    <path d="M342 58 C330 42, 315 48, 320 62 C330 72, 345 66, 342 58 Z" fill="#587860" opacity="0.95"/>
+    <path d="M340 95 C325 110, 310 102, 316 88 C328 80, 342 86, 340 95 Z" fill="#4d6d55" opacity="0.95"/>
+    <path d="M352 78 C342 66, 332 72, 336 84 C344 92, 355 86, 352 78 Z" fill="#6b8b73" opacity="0.92"/>
+
+    <!-- Delicate White Blossoms Left -->
+    <!-- Flower 1 (x: 290, y: 78) -->
+    <g transform="translate(288, 76)">
+      <circle cx="0" cy="-7" r="6" fill="#ffffff" opacity="0.96"/>
+      <circle cx="6" cy="-2" r="6" fill="#faf8f2" opacity="0.96"/>
+      <circle cx="4" cy="6" r="6" fill="#f5f3ec" opacity="0.96"/>
+      <circle cx="-4" cy="6" r="6" fill="#f7f5ee" opacity="0.96"/>
+      <circle cx="-6" cy="-2" r="6" fill="#ffffff" opacity="0.96"/>
+      <circle cx="0" cy="0" r="3.2" fill="#caa359" opacity="0.85"/>
+      <circle cx="0" cy="0" r="1.6" fill="#eddba8"/>
+    </g>
+    <!-- Flower 2 (x: 325, y: 64) -->
+    <g transform="translate(325, 62) scale(0.85)">
+      <circle cx="0" cy="-6" r="5" fill="#ffffff" opacity="0.96"/>
+      <circle cx="5" cy="-2" r="5" fill="#faf8f2" opacity="0.96"/>
+      <circle cx="3" cy="5" r="5" fill="#f5f3ec" opacity="0.96"/>
+      <circle cx="-3" cy="5" r="5" fill="#f7f5ee" opacity="0.96"/>
+      <circle cx="-5" cy="-2" r="5" fill="#ffffff" opacity="0.96"/>
+      <circle cx="0" cy="0" r="2.8" fill="#caa359" opacity="0.85"/>
+      <circle cx="0" cy="0" r="1.4" fill="#eddba8"/>
+    </g>
+    <!-- Flower 3 (x: 312, y: 95) -->
+    <g transform="translate(312, 94) scale(0.75)">
+      <circle cx="0" cy="-6" r="5" fill="#ffffff" opacity="0.96"/>
+      <circle cx="5" cy="-2" r="5" fill="#faf8f2" opacity="0.96"/>
+      <circle cx="3" cy="5" r="5" fill="#f5f3ec" opacity="0.96"/>
+      <circle cx="-3" cy="5" r="5" fill="#f7f5ee" opacity="0.96"/>
+      <circle cx="-5" cy="-2" r="5" fill="#ffffff" opacity="0.96"/>
+      <circle cx="0" cy="0" r="2.8" fill="#caa359" opacity="0.85"/>
+      <circle cx="0" cy="0" r="1.4" fill="#eddba8"/>
+    </g>
+  </g>
+
+  <!-- 5. LUSH WATERCOLOR EUCALYPTUS & OLIVE LEAVES RIGHT (x: 415 -> 580) -->
+  <g filter="url(#softGlow)">
+    <!-- Back tier sage leaves -->
+    <path d="M550 70 C570 52, 585 65, 575 82 C562 90, 545 80, 550 70 Z" fill="#8ea693" opacity="0.75"/>
+    <path d="M515 55 C532 36, 548 45, 540 62 C530 72, 512 65, 515 55 Z" fill="#9db4a2" opacity="0.8"/>
+    <path d="M530 95 C550 108, 565 98, 558 82 C545 75, 528 85, 530 95 Z" fill="#849e8a" opacity="0.75"/>
+    <path d="M485 42 C500 22, 518 30, 512 48 C502 58, 484 52, 485 42 Z" fill="#75937d" opacity="0.85"/>
+    <path d="M495 110 C512 126, 528 118, 522 100 C510 92, 494 100, 495 110 Z" fill="#6d8c75" opacity="0.8"/>
+
+    <!-- Mid tier eucalyptus round leaves -->
+    <path d="M480 72 C498 55, 515 68, 505 85 C492 95, 475 85, 480 72 Z" fill="#5a7a63" opacity="0.9"/>
+    <path d="M455 50 C470 32, 488 40, 482 58 C470 68, 452 60, 455 50 Z" fill="#6a8a73" opacity="0.9"/>
+    <path d="M462 102 C480 118, 498 108, 490 90 C478 82, 460 90, 462 102 Z" fill="#52725a" opacity="0.92"/>
+    <path d="M432 38 C445 20, 462 25, 458 42 C448 52, 430 46, 432 38 Z" fill="#7c9b85" opacity="0.88"/>
+    <path d="M435 112 C452 128, 468 120, 462 102 C450 95, 434 102, 435 112 Z" fill="#608068" opacity="0.88"/>
+
+    <!-- Fore tier foreground eucalyptus clusters -->
+    <path d="M440 75 C455 60, 470 70, 462 85 C450 95, 435 85, 440 75 Z" fill="#44644c" opacity="0.95"/>
+    <path d="M418 58 C430 42, 445 48, 440 62 C430 72, 415 66, 418 58 Z" fill="#587860" opacity="0.95"/>
+    <path d="M420 95 C435 110, 450 102, 444 88 C432 80, 418 86, 420 95 Z" fill="#4d6d55" opacity="0.95"/>
+    <path d="M408 78 C418 66, 428 72, 424 84 C416 92, 405 86, 408 78 Z" fill="#6b8b73" opacity="0.92"/>
+
+    <!-- Delicate White Blossoms Right -->
+    <!-- Flower 1 (x: 472, y: 78) -->
+    <g transform="translate(472, 76)">
+      <circle cx="0" cy="-7" r="6" fill="#ffffff" opacity="0.96"/>
+      <circle cx="6" cy="-2" r="6" fill="#faf8f2" opacity="0.96"/>
+      <circle cx="4" cy="6" r="6" fill="#f5f3ec" opacity="0.96"/>
+      <circle cx="-4" cy="6" r="6" fill="#f7f5ee" opacity="0.96"/>
+      <circle cx="-6" cy="-2" r="6" fill="#ffffff" opacity="0.96"/>
+      <circle cx="0" cy="0" r="3.2" fill="#caa359" opacity="0.85"/>
+      <circle cx="0" cy="0" r="1.6" fill="#eddba8"/>
+    </g>
+    <!-- Flower 2 (x: 435, y: 64) -->
+    <g transform="translate(435, 62) scale(0.85)">
+      <circle cx="0" cy="-6" r="5" fill="#ffffff" opacity="0.96"/>
+      <circle cx="5" cy="-2" r="5" fill="#faf8f2" opacity="0.96"/>
+      <circle cx="3" cy="5" r="5" fill="#f5f3ec" opacity="0.96"/>
+      <circle cx="-3" cy="5" r="5" fill="#f7f5ee" opacity="0.96"/>
+      <circle cx="-5" cy="-2" r="5" fill="#ffffff" opacity="0.96"/>
+      <circle cx="0" cy="0" r="2.8" fill="#caa359" opacity="0.85"/>
+      <circle cx="0" cy="0" r="1.4" fill="#eddba8"/>
+    </g>
+    <!-- Flower 3 (x: 448, y: 95) -->
+    <g transform="translate(448, 94) scale(0.75)">
+      <circle cx="0" cy="-6" r="5" fill="#ffffff" opacity="0.96"/>
+      <circle cx="5" cy="-2" r="5" fill="#faf8f2" opacity="0.96"/>
+      <circle cx="3" cy="5" r="5" fill="#f5f3ec" opacity="0.96"/>
+      <circle cx="-3" cy="5" r="5" fill="#f7f5ee" opacity="0.96"/>
+      <circle cx="-5" cy="-2" r="5" fill="#ffffff" opacity="0.96"/>
+      <circle cx="0" cy="0" r="2.8" fill="#caa359" opacity="0.85"/>
+      <circle cx="0" cy="0" r="1.4" fill="#eddba8"/>
+    </g>
+  </g>
+
+  <!-- 6. THE GOLDEN LATIN CROSS (Center 380, 72) -->
+  <g filter="url(#softGlow)">
+    <!-- Base Cross Silhouette -->
+    <!-- Vertical stem: x: 374 to 386 (w:12), y: 18 to 134 -->
+    <!-- Horizontal bar: x: 354 to 406 (w:52), y: 46 to 58 -->
+    <path d="M375 18 
+             C375 16, 377 14, 380 14 
+             C383 16, 385 16, 385 18 
+             L385 46 
+             L406 46 
+             C408 46, 410 48, 410 52 
+             C410 56, 408 58, 406 58 
+             L385 58 
+             L385 132 
+             C385 135, 383 137, 380 137 
+             C377 137, 375 135, 375 132 
+             L375 58 
+             L354 58 
+             C352 58, 350 56, 350 52 
+             C350 48, 352 46, 354 46 
+             L375 46 Z" 
+          fill="url(#goldStem)" 
+          stroke="#936f2a" 
+          stroke-width="1.2"/>
+    
+    <!-- Inner Radiant Highlight Bar -->
+    <path d="M378 22 L378 128" stroke="#fff4cf" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+    <path d="M358 52 L402 52" stroke="#fff4cf" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+    
+    <!-- Center Jewel / Intersection Accent -->
+    <circle cx="380" cy="52" r="3.5" fill="#eddba8" stroke="#936f2a" stroke-width="0.8"/>
+    <circle cx="380" cy="52" r="1.5" fill="#ffffff"/>
+  </g>
+</svg>
