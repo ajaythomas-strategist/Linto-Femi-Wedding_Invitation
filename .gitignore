@@ -1,0 +1,14 @@
+# Credentials & Secrets - NEVER commit these
+.credentials/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
