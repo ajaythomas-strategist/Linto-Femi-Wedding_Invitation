@@ -1127,37 +1127,61 @@ function createLeafElement(wish, slot, isGrowing = false, delayMs = 0) {
   const displayName = wish.showName !== false ? wish.name : 'A Well-Wisher';
   const leafId = 'leaf-grad-' + Math.random().toString(36).substring(2, 8);
 
+  // Autumn maple leaf colour palette — 4 variants inspired by the golden amber reference tree
+  const paletteMap = {
+    heart: { c0: '#ffe566', c1: '#f5a623', c2: '#c0392b', c3: '#8b1a1a', stroke: '#7b1212', vein: 'rgba(255,240,150,0.85)' },
+    leaf:  { c0: '#fff9a0', c1: '#ffb300', c2: '#e65100', c3: '#bf360c', stroke: '#a03000', vein: 'rgba(255,248,180,0.80)' },
+    gold:  { c0: '#fffde7', c1: '#ffd740', c2: '#ff8f00', c3: '#e65100', stroke: '#c67c00', vein: 'rgba(255,253,200,0.90)' },
+    tag:   { c0: '#f9fbe7', c1: '#c5e067', c2: '#7cb342', c3: '#33691e', stroke: '#4a7c20', vein: 'rgba(230,255,180,0.75)' }
+  };
+  const pal = paletteMap[slot.type] || paletteMap.heart;
+
   leaf.innerHTML = `
     <div class="tree-charm__ring" aria-hidden="true"></div>
     <div class="tree-charm__string" aria-hidden="true"></div>
     <div class="tree-leaf__body" title="${escapeHTML(displayName)}'s Wish">
-      <svg class="tree-leaf__svg" viewBox="0 0 48 52" fill="none" aria-hidden="true">
+      <svg class="tree-leaf__svg" viewBox="0 0 48 54" fill="none" aria-hidden="true">
         <defs>
-          <radialGradient id="${leafId}" cx="42%" cy="38%" r="62%">
-            <stop offset="0%" stop-color="#ffea79" />
-            <stop offset="30%" stop-color="#fa8231" />
-            <stop offset="68%" stop-color="#eb3b5a" />
-            <stop offset="100%" stop-color="#96172e" />
+          <radialGradient id="${leafId}" cx="44%" cy="36%" r="65%" gradientUnits="userSpaceOnUse">
+            <stop offset="0%"   stop-color="${pal.c0}" />
+            <stop offset="28%"  stop-color="${pal.c1}" />
+            <stop offset="65%"  stop-color="${pal.c2}" />
+            <stop offset="100%" stop-color="${pal.c3}" />
           </radialGradient>
         </defs>
-        <!-- Heart leaf natural blade -->
-        <path d="M24 7 C20 1, 3 2, 2 18 C1 31, 14 43, 24 50 C34 43, 47 31, 46 18 C45 2, 28 1, 24 7 Z" fill="url(#${leafId})" stroke="#b71540" stroke-width="0.8"/>
-        <!-- Central stem vein -->
-        <path d="M24 6 Q24 26 24 49" stroke="#ffeaa7" stroke-width="1.3" stroke-linecap="round" opacity="0.88"/>
-        <!-- Branching leaf veins -->
-        <path d="M24 15 Q16 12 7 16" stroke="#ffeaa7" stroke-width="0.8" stroke-linecap="round" opacity="0.65"/>
-        <path d="M24 15 Q32 12 41 16" stroke="#ffeaa7" stroke-width="0.8" stroke-linecap="round" opacity="0.65"/>
-        <path d="M24 23 Q15 21 6 27" stroke="#ffeaa7" stroke-width="0.8" stroke-linecap="round" opacity="0.65"/>
-        <path d="M24 23 Q33 21 42 27" stroke="#ffeaa7" stroke-width="0.8" stroke-linecap="round" opacity="0.65"/>
-        <path d="M24 31 Q17 30 11 36" stroke="#ffeaa7" stroke-width="0.75" stroke-linecap="round" opacity="0.6"/>
-        <path d="M24 31 Q31 30 37 36" stroke="#ffeaa7" stroke-width="0.75" stroke-linecap="round" opacity="0.6"/>
-        <path d="M24 39 Q20 39 15 43" stroke="#ffeaa7" stroke-width="0.65" stroke-linecap="round" opacity="0.5"/>
-        <path d="M24 39 Q28 39 33 43" stroke="#ffeaa7" stroke-width="0.65" stroke-linecap="round" opacity="0.5"/>
+        <!-- 5-LOBED AUTUMN MAPLE LEAF -->
+        <path d="
+          M 24 51 L 22 42
+          Q 16 44, 10 42 Q 8 38, 12 35
+          Q 2 33, 1 27 Q 6 23, 13 26
+          Q 7 17, 9 11 Q 15 11, 18 19
+          Q 20 7, 24 3
+          Q 28 7, 30 19 Q 33 11, 39 11
+          Q 41 17, 35 26 Q 42 23, 47 27
+          Q 46 33, 36 35 Q 40 38, 38 42
+          Q 32 44, 26 42 Z
+        " fill="url(#${leafId})" stroke="${pal.stroke}" stroke-width="0.7" stroke-linejoin="round"/>
+        <!-- Central mid-rib -->
+        <line x1="24" y1="51" x2="24" y2="5" stroke="${pal.vein}" stroke-width="1.1" stroke-linecap="round" opacity="0.9"/>
+        <!-- Upper lobe veins -->
+        <path d="M 24 20 Q 16 15, 10 12" stroke="${pal.vein}" stroke-width="0.75" stroke-linecap="round" opacity="0.8"/>
+        <path d="M 24 20 Q 32 15, 38 12" stroke="${pal.vein}" stroke-width="0.75" stroke-linecap="round" opacity="0.8"/>
+        <!-- Side lobe veins -->
+        <path d="M 22 30 Q 13 28, 4 26" stroke="${pal.vein}" stroke-width="0.7" stroke-linecap="round" opacity="0.7"/>
+        <path d="M 26 30 Q 35 28, 44 26" stroke="${pal.vein}" stroke-width="0.7" stroke-linecap="round" opacity="0.7"/>
+        <!-- Lower sub-veins -->
+        <path d="M 22 37 Q 16 38, 11 40" stroke="${pal.vein}" stroke-width="0.55" stroke-linecap="round" opacity="0.6"/>
+        <path d="M 26 37 Q 32 38, 37 40" stroke="${pal.vein}" stroke-width="0.55" stroke-linecap="round" opacity="0.6"/>
+        <!-- Fine secondary veins -->
+        <path d="M 18 24 Q 14 21, 11 19" stroke="${pal.vein}" stroke-width="0.45" stroke-linecap="round" opacity="0.5"/>
+        <path d="M 30 24 Q 34 21, 37 19" stroke="${pal.vein}" stroke-width="0.45" stroke-linecap="round" opacity="0.5"/>
+        <!-- Sunlit highlight -->
+        <ellipse cx="20" cy="18" rx="4" ry="3" fill="${pal.c0}" opacity="0.28" transform="rotate(-20,20,18)"/>
       </svg>
       <span class="tree-leaf__name-preview">${escapeHTML(displayName.slice(0, 9))}</span>
     </div>
-    <span class="tree-leaf__tooltip">${escapeHTML(displayName)} ♡</span>
-    ${isGrowing ? `<div class="tree-leaf__highlight-tag">Your Wish is Blooming on the Tree! 🍂</div>` : ''}
+    <span class="tree-leaf__tooltip">${escapeHTML(displayName)} 🍁</span>
+    ${isGrowing ? `<div class="tree-leaf__highlight-tag">Your Wish is Blooming on the Tree! 🍁</div>` : ''}
   `;
 
   // Click to open detail modal
@@ -1171,6 +1195,7 @@ function createLeafElement(wish, slot, isGrowing = false, delayMs = 0) {
 
   return leaf;
 }
+
 
 function openBlessingModal(wish) {
   const leafModal = $('#blessing-view-modal');
