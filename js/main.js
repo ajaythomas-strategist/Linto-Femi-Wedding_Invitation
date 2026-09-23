@@ -908,14 +908,9 @@ function initSkyAmbientCanvas() {
 }
 
 /**
- * Load blessings strictly from Google Sheet Web App / CSV + LocalStorage (Zero Hardcoded Seeds)
+ * Load blessings strictly from Google Sheet Web App / CSV (Zero Hardcoded Seeds, 1:1 Google Sheet Sync)
  */
 function loadSkyBlessingsData() {
-  let localBlessings = [];
-  try {
-    localBlessings = JSON.parse(localStorage.getItem('wedding_blessings_sky') || '[]');
-  } catch (_) {}
-
   const scriptUrl = window.GOOGLE_SHEETS_SCRIPT_URL || '';
   const csvEndpoint = 'https://docs.google.com/spreadsheets/d/19TFYKdVRnqmQjT_R7n5rOukO1MdpIDj3mjsM3Plu0O0/export?format=csv&gid=0';
 
@@ -924,32 +919,32 @@ function loadSkyBlessingsData() {
       .then(res => res.json())
       .then(data => {
         if (data && data.wishes && Array.isArray(data.wishes)) {
-          combineAndRenderSkyBlessings(data.wishes, localBlessings);
+          combineAndRenderSkyBlessings(data.wishes);
         } else {
-          loadFromCsvAndCombine(csvEndpoint, localBlessings);
+          loadFromCsvAndCombine(csvEndpoint);
         }
       })
       .catch(() => {
-        loadFromCsvAndCombine(csvEndpoint, localBlessings);
+        loadFromCsvAndCombine(csvEndpoint);
       });
   } else {
-    loadFromCsvAndCombine(csvEndpoint, localBlessings);
+    loadFromCsvAndCombine(csvEndpoint);
   }
 }
 
-function loadFromCsvAndCombine(endpoint, localBlessings) {
+function loadFromCsvAndCombine(endpoint) {
   if (!endpoint) {
-    combineAndRenderSkyBlessings([], localBlessings);
+    combineAndRenderSkyBlessings([]);
     return;
   }
   fetch(endpoint)
     .then(res => res.text())
     .then(csv => {
       const remoteWishes = parseGoogleSheetSkyCSV(csv);
-      combineAndRenderSkyBlessings(remoteWishes, localBlessings);
+      combineAndRenderSkyBlessings(remoteWishes);
     })
     .catch(() => {
-      combineAndRenderSkyBlessings([], localBlessings);
+      combineAndRenderSkyBlessings([]);
     });
 }
 
@@ -1002,13 +997,13 @@ function parseCSVLine(text) {
   return result;
 }
 
-function combineAndRenderSkyBlessings(remote, local) {
+function combineAndRenderSkyBlessings(remote) {
   const combined = [];
   const seen = new Set();
 
   function addWish(w) {
     if (!w || !w.name || !w.message) return;
-    const key = `${w.name}___${w.message}`.toLowerCase();
+    const key = `${w.name.trim()}___${w.message.trim()}`.toLowerCase();
     if (!seen.has(key)) {
       seen.add(key);
       combined.push(w);
@@ -1018,15 +1013,11 @@ function combineAndRenderSkyBlessings(remote, local) {
   // Remote Google Sheet records in descending order (latest records first)
   (remote || []).slice().reverse().forEach(addWish);
 
-  // If Google Sheet has 0 entries, reset any stale demo entries in local storage
-  if (!remote || remote.length === 0) {
-    try {
-      localStorage.removeItem('wedding_blessings_sky');
-    } catch (_) {}
-  } else {
-    // Merge local submissions with remote
-    (local || []).slice().reverse().forEach(addWish);
-  }
+  // Clear stale local storage to guarantee 1:1 fidelity with Google Sheet
+  try {
+    localStorage.removeItem('wedding_blessings_sky');
+    localStorage.removeItem('wedding_wishes');
+  } catch (_) {}
 
   allBlessings = combined;
   renderSkyStars(allBlessings);
@@ -1036,7 +1027,7 @@ function combineAndRenderSkyBlessings(remote, local) {
 /**
  * Deterministic Organic Coordinate Generator
  * Ensures the SAME blessing ALWAYS appears in the EXACT same position across all page loads.
- * Positions stars exclusively in the open night sky (Y <= 48%), well above the couple.
+ * Positions stars strictly in the celestial night sky (Y: 6% to 35%), keeping couple area completely clear.
  */
 function getDeterministicSkyPosition(seedStr, index, totalCount) {
   let hash = 0;
@@ -1048,26 +1039,25 @@ function getDeterministicSkyPosition(seedStr, index, totalCount) {
 
   // Golden ratio pseudorandom dispersion
   const phi = 0.618033988749895;
-  const randX = ((absHash % 1000) / 1000 + index * phi) % 1;
-  const randY = (((absHash >> 3) % 1000) / 1000 + index * phi * 1.618) % 1;
+  const randX = ((absHash % 1000) / 1000 + (index + 1) * phi) % 1;
+  const randY = (((absHash >> 3) % 1000) / 1000 + (index + 1) * phi * 1.618) % 1;
 
-  // Celestial sky zone: Y from 6% to 42%, X from 6% to 94%
-  let posX = 6 + randX * 88;
-  let posY = 6 + randY * 36;
-
-  // Right-hand side open sky (where couple gazes towards) can stretch slightly lower (up to 48%)
-  if (posX > 48 && (absHash % 2 === 0)) {
-    posY = 10 + randY * 38;
+  // Spread horizontally across panoramic canvas (8% to 92%)
+  let posX = 8 + randX * 84;
+  
+  // Height strictly in upper night sky:
+  // Left side (above the couple): Y strictly 6% to 28% (never reaches couple's heads/bodies)
+  // Right side (above hills & church): Y strictly 8% to 35%
+  let posY = 0;
+  if (posX < 46) {
+    posY = 6 + (randY * 22);
+  } else {
+    posY = 8 + (randY * 27);
   }
 
-  // Strict avoidance of couple area on the lower-left: if on the left, strictly keep Y <= 38%
-  if (posX < 46 && posY > 38) {
-    posY = 6 + (absHash % 30); // 6% to 36% in upper sky
-  }
-
-  // Constrain inside safe celestial dome
-  posX = Math.max(6, Math.min(94, posX));
-  posY = Math.max(6, Math.min(46, posY));
+  // Final bounds clamp - strictly in the celestial dome
+  posX = Number(Math.max(7, Math.min(93, posX)).toFixed(1));
+  posY = Number(Math.max(6, Math.min(35, posY)).toFixed(1));
 
   return { x: posX, y: posY };
 }
@@ -1221,8 +1211,13 @@ function setupSkyPopover() {
  */
 function animateSkyBlessingCounter(targetNum) {
   const countNum = $('#sky-blessings-num');
+  const countLabel = $('#sky-counter-badge .sky-stat-label');
   if (!countNum) return;
   const target = Math.max(0, parseInt(targetNum, 10) || 0);
+
+  if (countLabel) {
+    countLabel.textContent = target === 1 ? 'Blessing' : 'Blessings';
+  }
 
   let current = 0;
   const duration = 1200; // fast 1.2s
