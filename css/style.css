@@ -5984,12 +5984,6 @@ button {
   animation: latestStarPulse 2.5s infinite ease-in-out;
 }
 
-.sky-star--latest .star-name-tag {
-  opacity: 0.85;
-  border-color: #ffd875;
-  color: #ffd875;
-}
-
 @keyframes latestStarPulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.2); }
@@ -6021,32 +6015,6 @@ button {
   border-radius: 50%;
   background: #ffffff;
   box-shadow: 0 0 8px #ffffff;
-}
-
-.star-name-tag {
-  position: absolute;
-  bottom: -24px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(10, 16, 28, 0.94);
-  border: 1px solid rgba(212, 175, 55, 0.6);
-  color: #fff6e0;
-  font-family: var(--font-sans);
-  font-size: 0.68rem;
-  font-weight: 600;
-  padding: 2px 9px;
-  border-radius: 9999px;
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
-}
-
-.sky-star:hover .star-name-tag,
-.sky-star:focus-visible .star-name-tag {
-  opacity: 1;
-  transform: translateX(-50%) translateY(2px);
 }
 
 @keyframes starAmbientGlow {

@@ -1036,6 +1036,7 @@ function combineAndRenderSkyBlessings(remote, local) {
 /**
  * Deterministic Organic Coordinate Generator
  * Ensures the SAME blessing ALWAYS appears in the EXACT same position across all page loads.
+ * Positions stars exclusively in the open night sky (Y <= 48%), well above the couple.
  */
 function getDeterministicSkyPosition(seedStr, index, totalCount) {
   let hash = 0;
@@ -1050,18 +1051,23 @@ function getDeterministicSkyPosition(seedStr, index, totalCount) {
   const randX = ((absHash % 1000) / 1000 + index * phi) % 1;
   const randY = (((absHash >> 3) % 1000) / 1000 + index * phi * 1.618) % 1;
 
-  // Margin padding: X from 6% to 94%, Y from 8% to 76% across the panoramic celestial zone
+  // Celestial sky zone: Y from 6% to 42%, X from 6% to 94%
   let posX = 6 + randX * 88;
-  let posY = 8 + randY * 68;
+  let posY = 6 + randY * 36;
 
-  // Keep center CTA button area relatively clear (40%-60% X, 65%-85% Y)
-  if (posX >= 38 && posX <= 62 && posY >= 62 && posY <= 85) {
-    posY = posY < 73 ? 54 - (absHash % 12) : 88;
+  // Right-hand side open sky (where couple gazes towards) can stretch slightly lower (up to 48%)
+  if (posX > 48 && (absHash % 2 === 0)) {
+    posY = 10 + randY * 38;
   }
 
-  // Constrain inside viewport bounds
-  posX = Math.max(5, Math.min(95, posX));
-  posY = Math.max(6, Math.min(84, posY));
+  // Strict avoidance of couple area on the lower-left: if on the left, strictly keep Y <= 38%
+  if (posX < 46 && posY > 38) {
+    posY = 6 + (absHash % 30); // 6% to 36% in upper sky
+  }
+
+  // Constrain inside safe celestial dome
+  posX = Math.max(6, Math.min(94, posX));
+  posY = Math.max(6, Math.min(46, posY));
 
   return { x: posX, y: posY };
 }
@@ -1113,7 +1119,6 @@ function createSkyStarElement(wish, index, total) {
       <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z"/>
     </svg>
     <div class="star-core-dot"></div>
-    <span class="star-name-tag">${escapeHTML(displayName)}${isLatest ? ' &bull; New' : ''}</span>
   `;
 
   starBtn.addEventListener('click', (e) => {
