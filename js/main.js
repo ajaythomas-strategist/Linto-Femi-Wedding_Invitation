@@ -61,7 +61,7 @@ function initFloatingNav() {
 
 /* ── 2. COUNTDOWN ───────────────────────────────────────────── */
 function initCountdown() {
-  const wedding  = new Date(weddingConfig.weddingDate + 'T00:00:00');
+  const wedding  = new Date(`${weddingConfig.weddingDate}T10:30:00+05:30`);
   const slots = {
     days:    $('#cd-days-slot'),
     hours:   $('#cd-hours-slot'),
@@ -441,10 +441,10 @@ function initGallery() {
     });
   }
 
-  // Initial render with configured moments
+  // Render gallery using exclusively photos from the project's Images/Moments/ folder
   renderGallery();
 
-  // Dynamic automatic discovery of any newly added photos in Images/Moments/:
+  // Dynamic automatic discovery of any additional photos in Images/Moments/:
   const candidateNames = [];
   for (let n = 1; n <= 30; n++) {
     candidateNames.push(`Image ${n}.jpeg`, `Image ${n}.jpg`, `Image ${n}.png`);
@@ -627,13 +627,10 @@ function initModals() {
   const openInvBtn = $('#btn-open-card-modal');
   const closeInvBtn= $('#close-card-modal');
 
-  const greetModal = $('#greetings-modal');
+  const starModal = $('#light-star-modal') || $('#greetings-modal');
+  const openStarBtn = $('#btn-open-sky-form');
   const openGreetBtn = $('#btn-open-greetings-modal');
-  const closeGreetBtn= $('#close-greetings-modal');
-  const treePlantBtn = $('#btn-tree-plant-wish');
-
-  const leafModal    = $('#blessing-view-modal');
-  const closeLeafBtn = $('#close-leaf-modal');
+  const closeStarBtn= $('#close-star-modal') || $('#close-greetings-modal');
 
   function openModal(modal) {
     if (!modal) return;
@@ -681,39 +678,29 @@ function initModals() {
     });
   });
 
-  // Greetings Form Modal Open
-  if (openGreetBtn && greetModal) {
-    openGreetBtn.addEventListener('click', () => openModal(greetModal));
+  // Light Star / Blessing Modal Open
+  if (openStarBtn && starModal) {
+    openStarBtn.addEventListener('click', () => openModal(starModal));
   }
-  if (treePlantBtn && greetModal) {
-    treePlantBtn.addEventListener('click', () => openModal(greetModal));
+  if (openGreetBtn && starModal) {
+    openGreetBtn.addEventListener('click', () => openModal(starModal));
   }
-  if (closeGreetBtn && greetModal) {
-    closeGreetBtn.addEventListener('click', () => closeModal(greetModal));
+  if (closeStarBtn && starModal) {
+    closeStarBtn.addEventListener('click', () => closeModal(starModal));
   }
-  if (greetModal) {
-    greetModal.addEventListener('click', e => {
-      if (e.target === greetModal) closeModal(greetModal);
+  if (starModal) {
+    starModal.addEventListener('click', e => {
+      if (e.target === starModal) closeModal(starModal);
     });
   }
 
-  // Leaf Viewer Modal Close
-  if (closeLeafBtn && leafModal) {
-    closeLeafBtn.addEventListener('click', () => closeModal(leafModal));
-  }
-  if (leafModal) {
-    leafModal.addEventListener('click', e => {
-      if (e.target === leafModal) closeModal(leafModal);
-    });
-  }
-
-  // View on tree button from success state
-  const viewOnTreeBtn = $('#btn-view-on-tree');
-  if (viewOnTreeBtn && greetModal) {
-    viewOnTreeBtn.addEventListener('click', () => {
-      closeModal(greetModal);
-      const treeSec = $('#tree-of-blessings');
-      if (treeSec) treeSec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  // View in Sky button from success state
+  const viewSkyBtn = $('#btn-view-star-sky') || $('#btn-view-on-wall');
+  if (viewSkyBtn && starModal) {
+    viewSkyBtn.addEventListener('click', () => {
+      closeModal(starModal);
+      const skySec = $('#sky-of-blessings');
+      if (skySec) skySec.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   }
 
@@ -721,8 +708,8 @@ function initModals() {
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       closeModal(invModal);
-      closeModal(greetModal);
-      closeModal(leafModal);
+      closeModal(starModal);
+      if (typeof closeSkyStarPopover === 'function') closeSkyStarPopover();
     }
   });
 }
@@ -840,176 +827,156 @@ async function scanFormalInvitationCards() {
   }
 }
 
-/* ── 11. ENCRYPTED GOOGLE SHEET & TREE OF BLESSINGS ──────────── */
-// Secret key and obfuscated Google Sheets endpoint
-const _TREE_CIPHER_KEY = 'TreeBlessings2026';
-const _TREE_ENC_ENDPOINT = 'PAYRFTFWSlwXBg0UXVVfXVE4F0sGLQFKAAMbCwYXQVhXUyABSgFtXVwnNTAlAyVgXkNbBRgxOhBbC0YBJhsMPAN9VkYdNg9WLwYWPkA5AhJDfQAdUywCChc2UwMcAQQPE05RQ0QQMxsBWHI=';
+/* ── 11. SKY OF BLESSINGS (CELESTIAL STARLIT GUESTBOOK) ─────── */
 
-function decryptEndpoint(encB64, keyStr) {
-  try {
-    const raw = atob(encB64);
-    let out = '';
-    for (let i = 0; i < raw.length; i++) {
-      out += String.fromCharCode(raw.charCodeAt(i) ^ keyStr.charCodeAt(i % keyStr.length));
-    }
-    return out;
-  } catch (err) {
-    return '';
-  }
+let allBlessings = [];
+let activeStarPopover = null;
+
+function initSkyOfBlessings() {
+  const skyViewport = $('#sky-viewport');
+  if (!skyViewport) return;
+
+  initSkyAmbientCanvas();
+  loadSkyBlessingsData();
+  setupSkyForm();
+  setupSkyPopover();
+  initSkyCounterObserver();
 }
 
-// Tree organic branch coordinate slots (percentage top, left, rotation angle, leaf type)
-const TREE_BRANCH_SLOTS = [
-  { top: 21, left: 47, rot: -3, type: 'heart' },
-  { top: 27, left: 33, rot: -10, type: 'leaf' },
-  { top: 25, left: 63, rot: 8, type: 'leaf' },
-  { top: 38, left: 24, rot: -14, type: 'gold' },
-  { top: 36, left: 74, rot: 12, type: 'heart' },
-  { top: 48, left: 20, rot: -8, type: 'leaf' },
-  { top: 46, left: 78, rot: 10, type: 'leaf' },
-  { top: 17, left: 37, rot: -6, type: 'gold' },
-  { top: 16, left: 57, rot: 6, type: 'heart' },
-  { top: 34, left: 42, rot: -5, type: 'leaf' },
-  { top: 33, left: 55, rot: 5, type: 'leaf' },
-  { top: 44, left: 32, rot: -12, type: 'gold' },
-  { top: 43, left: 66, rot: 14, type: 'heart' },
-  { top: 14, left: 47, rot: 0, type: 'gold' },
-  { top: 23, left: 21, rot: -16, type: 'leaf' },
-  { top: 22, left: 76, rot: 16, type: 'leaf' },
-  { top: 51, left: 28, rot: -6, type: 'tag' },
-  { top: 50, left: 69, rot: 8, type: 'tag' },
-  { top: 30, left: 49, rot: 2, type: 'heart' },
-  { top: 19, left: 29, rot: -11, type: 'leaf' },
-  { top: 18, left: 68, rot: 9, type: 'leaf' }
-];
+/**
+ * Ambient background starlight canvas (decorative non-blessing stars)
+ */
+function initSkyAmbientCanvas() {
+  const canvas = $('#sky-ambient-canvas');
+  if (!canvas) return;
 
-// Initial seed blessings to provide warm living atmosphere (from reference image)
-const DEFAULT_SEED_BLESSINGS = [
-  { name: 'Kevin', message: 'So happy for you both!', showName: true },
-  { name: 'Anna', message: 'God bless your journey with boundless love.', showName: true },
-  { name: 'Maria', message: 'May your home always be filled with love and laughter.', showName: true },
-  { name: 'Rinu', message: 'A lifetime of love & joy for Linto & Femi.', showName: true },
-  { name: 'Jithin', message: 'Two hearts, one beautiful sacred journey.', showName: true },
-  { name: 'Neha', message: 'Wishing you endless happiness and divine peace.', showName: true }
-];
+  const ctx = canvas.getContext('2d');
+  let animationId;
 
-let allTreeWishes = [];
+  function resize() {
+    canvas.width = canvas.parentElement.clientWidth || 1000;
+    canvas.height = canvas.parentElement.clientHeight || 600;
+  }
 
-function initTreeOfBlessings() {
-  const container = $('#tree-leaves-container');
-  if (!container) return;
+  resize();
+  window.addEventListener('resize', resize);
 
-  loadTreeBlessings();
+  const ambientStars = [];
+  const starCount = 45;
 
-  // Wire up Form Submission
-  const greetForm   = $('#greetings-form');
-  const greetSucc   = $('#greetings-success');
-  const anotherBtn  = $('#btn-send-another');
+  for (let i = 0; i < starCount; i++) {
+    ambientStars.push({
+      x: Math.random(),
+      y: Math.random() * 0.68,
+      radius: Math.random() * 1.2 + 0.5,
+      alpha: Math.random() * 0.7 + 0.2,
+      speed: Math.random() * 0.02 + 0.008,
+      phase: Math.random() * Math.PI * 2,
+      color: Math.random() > 0.4 ? '#ffd875' : '#ffffff'
+    });
+  }
 
-  if (greetForm) {
-    greetForm.addEventListener('submit', e => {
-      e.preventDefault();
-      const nameInput     = $('#greet-name');
-      const msgInput      = $('#greet-message');
-      const showNameCheck = $('#greet-show-name');
+  function render(time) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const t = time * 0.001;
 
-      const rawName  = nameInput ? nameInput.value.trim() : '';
-      const rawMsg   = msgInput ? msgInput.value.trim() : '';
-      const showName = showNameCheck ? showNameCheck.checked : true;
+    for (let i = 0; i < ambientStars.length; i++) {
+      const s = ambientStars[i];
+      const pulseAlpha = Math.max(0.1, Math.min(1, s.alpha + Math.sin(t * s.speed * 60 + s.phase) * 0.35));
 
-      if (!rawName || !rawMsg) return;
+      ctx.beginPath();
+      ctx.arc(s.x * canvas.width, s.y * canvas.height, s.radius, 0, Math.PI * 2);
+      ctx.fillStyle = s.color;
+      ctx.globalAlpha = pulseAlpha;
+      ctx.fill();
 
-      const newWish = {
-        name: rawName,
-        message: rawMsg,
-        showName: showName,
-        date: new Date().toISOString()
-      };
-
-      // 1. Save locally
-      try {
-        const localSaved = JSON.parse(localStorage.getItem('wedding_blessings_tree') || '[]');
-        localSaved.unshift(newWish);
-        localStorage.setItem('wedding_blessings_tree', JSON.stringify(localSaved));
-      } catch (_) {}
-
-      // 2. Add to active tree with growth animation
-      allTreeWishes.unshift(newWish);
-      plantNewLeafOnTree(newWish, true);
-
-      // 3. Update counter & state
-      updateTreeCounters();
-
-      // 4. Show success UI
-      greetForm.style.display = 'none';
-      if (greetSucc) {
-        greetSucc.style.display = 'block';
-        const msgEl = $('#success-guest-msg');
-        if (msgEl) {
-          msgEl.textContent = `Thank you ${showName ? rawName : 'dear friend'}! Your leaf is now blooming on our Tree of Blessings.`;
-        }
+      // Subtle glow on brighter stars
+      if (s.radius > 1.2) {
+        ctx.beginPath();
+        ctx.arc(s.x * canvas.width, s.y * canvas.height, s.radius * 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(202, 163, 89, 0.15)';
+        ctx.globalAlpha = pulseAlpha * 0.4;
+        ctx.fill();
       }
+    }
 
-      // 5. Confetti celebration
-      launchConfetti();
-
-      // 6. Asynchronously send to Google Sheets
-      syncWishToGoogleSheet(newWish);
-    });
+    ctx.globalAlpha = 1;
+    animationId = requestAnimationFrame(render);
   }
 
-  if (anotherBtn && greetForm && greetSucc) {
-    anotherBtn.addEventListener('click', () => {
-      greetForm.reset();
-      greetSucc.style.display = 'none';
-      greetForm.style.display = 'block';
-    });
-  }
+  animationId = requestAnimationFrame(render);
 }
 
-// Load blessings from Google Sheets CSV + LocalStorage + Seeds
-function loadTreeBlessings() {
-  const endpoint = decryptEndpoint(_TREE_ENC_ENDPOINT, _TREE_CIPHER_KEY);
+/**
+ * Load blessings strictly from Google Sheet Web App / CSV + LocalStorage (Zero Hardcoded Seeds)
+ */
+function loadSkyBlessingsData() {
   let localBlessings = [];
-
   try {
-    localBlessings = JSON.parse(localStorage.getItem('wedding_blessings_tree') || '[]');
+    localBlessings = JSON.parse(localStorage.getItem('wedding_blessings_sky') || '[]');
   } catch (_) {}
 
-  // Fetch Google Sheets in background
-  if (endpoint) {
-    fetch(endpoint)
-      .then(res => res.text())
-      .then(csv => {
-        const remoteWishes = parseGoogleSheetCSV(csv);
-        // Combine remote + local + seed without duplicate names & messages
-        combineAndRenderWishes(remoteWishes, localBlessings);
+  const scriptUrl = window.GOOGLE_SHEETS_SCRIPT_URL || '';
+  const csvEndpoint = 'https://docs.google.com/spreadsheets/d/19TFYKdVRnqmQjT_R7n5rOukO1MdpIDj3mjsM3Plu0O0/export?format=csv&gid=0';
+
+  if (scriptUrl) {
+    fetch(`${scriptUrl}?action=wishes`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.wishes && Array.isArray(data.wishes)) {
+          combineAndRenderSkyBlessings(data.wishes, localBlessings);
+        } else {
+          loadFromCsvAndCombine(csvEndpoint, localBlessings);
+        }
       })
       .catch(() => {
-        // Fallback gracefully to local + seed
-        combineAndRenderWishes([], localBlessings);
+        loadFromCsvAndCombine(csvEndpoint, localBlessings);
       });
   } else {
-    combineAndRenderWishes([], localBlessings);
+    loadFromCsvAndCombine(csvEndpoint, localBlessings);
   }
 }
 
-function parseGoogleSheetCSV(csvText) {
+function loadFromCsvAndCombine(endpoint, localBlessings) {
+  if (!endpoint) {
+    combineAndRenderSkyBlessings([], localBlessings);
+    return;
+  }
+  fetch(endpoint)
+    .then(res => res.text())
+    .then(csv => {
+      const remoteWishes = parseGoogleSheetSkyCSV(csv);
+      combineAndRenderSkyBlessings(remoteWishes, localBlessings);
+    })
+    .catch(() => {
+      combineAndRenderSkyBlessings([], localBlessings);
+    });
+}
+
+function parseGoogleSheetSkyCSV(csvText) {
   if (!csvText || typeof csvText !== 'string') return [];
   const lines = csvText.split(/\r?\n/).filter(line => line.trim().length > 0);
-  if (lines.length <= 1) return []; // Only header
+  if (lines.length <= 1) return [];
 
   const wishes = [];
-  // Skip header: "Your Name,Your Blessings & Message"
   for (let i = 1; i < lines.length; i++) {
-    const line = lines[i];
-    // Simple CSV parser handling quotes
-    const parts = parseCSVLine(line);
+    const parts = parseCSVLine(lines[i]);
     if (parts.length >= 2) {
       const name = parts[0].trim();
       const message = parts[1].trim();
+      const category = parts[2] ? parts[2].trim() : 'Blessing';
+      const showName = parts[3] ? parts[3].trim() !== 'No' : true;
+      const timestamp = parts[4] ? parts[4].trim() : 'Blessing Star';
+
       if (name && message) {
-        wishes.push({ name, message, showName: true });
+        wishes.push({
+          id: 'sheet-' + i,
+          name: name,
+          message: message,
+          category: category,
+          showName: showName,
+          date: timestamp
+        });
       }
     }
   }
@@ -1035,7 +1002,7 @@ function parseCSVLine(text) {
   return result;
 }
 
-function combineAndRenderWishes(remote, local) {
+function combineAndRenderSkyBlessings(remote, local) {
   const combined = [];
   const seen = new Set();
 
@@ -1048,232 +1015,505 @@ function combineAndRenderWishes(remote, local) {
     }
   }
 
-  // Priority: User's locally submitted wishes first, then Google Sheet rows
-  local.forEach(addWish);
-  remote.forEach(addWish);
+  // Remote Google Sheet records in descending order (latest records first)
+  (remote || []).slice().reverse().forEach(addWish);
 
-  // If no wishes exist yet from Google Sheet or local, show default seed blessings
-  if (combined.length === 0) {
-    DEFAULT_SEED_BLESSINGS.forEach(addWish);
+  // If Google Sheet has 0 entries, reset any stale demo entries in local storage
+  if (!remote || remote.length === 0) {
+    try {
+      localStorage.removeItem('wedding_blessings_sky');
+    } catch (_) {}
+  } else {
+    // Merge local submissions with remote
+    (local || []).slice().reverse().forEach(addWish);
   }
 
-  allTreeWishes = combined;
-  renderAllLeaves(allTreeWishes);
-  updateTreeCounters();
+  allBlessings = combined;
+  renderSkyStars(allBlessings);
+  updateSkyCounter();
 }
 
-function renderAllLeaves(wishes) {
-  const container = $('#tree-leaves-container');
-  if (!container) return;
-  container.innerHTML = '';
-
-  const maxRender = Math.min(wishes.length, TREE_BRANCH_SLOTS.length);
-  for (let i = 0; i < maxRender; i++) {
-    const wish = wishes[i];
-    const slot = TREE_BRANCH_SLOTS[i];
-    const leaf = createLeafElement(wish, slot, false, i * 70);
-    container.appendChild(leaf);
+/**
+ * Deterministic Organic Coordinate Generator
+ * Ensures the SAME blessing ALWAYS appears in the EXACT same position across all page loads.
+ */
+function getDeterministicSkyPosition(seedStr, index, totalCount) {
+  let hash = 0;
+  for (let i = 0; i < seedStr.length; i++) {
+    hash = ((hash << 5) - hash) + seedStr.charCodeAt(i);
+    hash |= 0;
   }
+  const absHash = Math.abs(hash);
+
+  // Golden ratio pseudorandom dispersion
+  const phi = 0.618033988749895;
+  const randX = ((absHash % 1000) / 1000 + index * phi) % 1;
+  const randY = (((absHash >> 3) % 1000) / 1000 + index * phi * 1.618) % 1;
+
+  // Margin padding: X from 6% to 94%, Y from 8% to 76% across the panoramic celestial zone
+  let posX = 6 + randX * 88;
+  let posY = 8 + randY * 68;
+
+  // Keep center CTA button area relatively clear (40%-60% X, 65%-85% Y)
+  if (posX >= 38 && posX <= 62 && posY >= 62 && posY <= 85) {
+    posY = posY < 73 ? 54 - (absHash % 12) : 88;
+  }
+
+  // Constrain inside viewport bounds
+  posX = Math.max(5, Math.min(95, posX));
+  posY = Math.max(6, Math.min(84, posY));
+
+  return { x: posX, y: posY };
 }
 
-function plantNewLeafOnTree(wish, isNew = false) {
-  const container = $('#tree-leaves-container');
-  if (!container) return;
+/**
+ * Render all blessing stars in the sky in descending order (latest first)
+ */
+function renderSkyStars(blessings) {
+  const layer = $('#sky-stars-layer');
+  const emptyPrompt = $('#sky-empty-prompt');
+  if (!layer) return;
 
-  const slotIndex = (allTreeWishes.length - 1) % TREE_BRANCH_SLOTS.length;
-  const slot = TREE_BRANCH_SLOTS[slotIndex];
+  layer.innerHTML = '';
+
+  if (blessings.length === 0) {
+    if (emptyPrompt) emptyPrompt.style.display = 'block';
+    return;
+  } else {
+    if (emptyPrompt) emptyPrompt.style.display = 'none';
+  }
+
+  blessings.forEach((wish, idx) => {
+    const starEl = createSkyStarElement(wish, idx, blessings.length);
+    layer.appendChild(starEl);
+  });
+}
+
+function createSkyStarElement(wish, index, total) {
+  const seedKey = `${wish.id || index}_${wish.name}_${wish.message}`;
+  const pos = getDeterministicSkyPosition(seedKey, index, total);
+
+  const starBtn = document.createElement('button');
+  const isLatest = index === 0;
+  starBtn.className = `sky-star ${isLatest ? 'sky-star--latest' : ''}`;
+  starBtn.style.left = `${pos.x}%`;
+  starBtn.style.top = `${pos.y}%`;
+  starBtn.setAttribute('type', 'button');
   
-  const leaf = createLeafElement(wish, slot, isNew, 0);
-  container.appendChild(leaf);
+  const displayName = wish.showName !== false && wish.showName !== 'No' ? wish.name : 'A Well-Wisher';
+  starBtn.setAttribute('aria-label', `Star blessing from ${displayName}${isLatest ? ' (Latest Wish)' : ''}`);
 
-  if (isNew) {
-    const treeSec = $('#tree-of-blessings');
-    if (treeSec) {
-      setTimeout(() => {
-        treeSec.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 300);
-    }
-  }
-}
+  // Scale / star shape variance based on index
+  const sizeVariance = isLatest ? 22 : (14 + (index % 4) * 2);
+  const animDelay = ((index * 0.35) % 3).toFixed(2);
 
-function createLeafElement(wish, slot, isGrowing = false, delayMs = 0) {
-  const leaf = document.createElement('div');
-  const typeClass = slot.type ? `tree-leaf--${slot.type}` : 'tree-leaf--heart';
-  leaf.className = `tree-leaf ${typeClass} ${isGrowing ? 'tree-leaf--growing tree-leaf--highlighted' : ''}`;
-
-  const stringLen = 18 + Math.floor(Math.random() * 16);
-  const swayDur   = (3.6 + Math.random() * 1.8).toFixed(1);
-  const swayDel   = (-Math.random() * 3).toFixed(1);
-  const rotStart  = (-2.5 - Math.random() * 2).toFixed(1);
-  const rotEnd    = (2.5 + Math.random() * 2).toFixed(1);
-
-  leaf.style.top  = `${slot.top}%`;
-  leaf.style.left = `${slot.left}%`;
-  leaf.style.setProperty('--string-len', `${stringLen}px`);
-  leaf.style.setProperty('--sway-dur', `${swayDur}s`);
-  leaf.style.setProperty('--sway-del', `${swayDel}s`);
-  leaf.style.setProperty('--rot-start', `${rotStart}deg`);
-  leaf.style.setProperty('--rot-end', `${rotEnd}deg`);
-
-  leaf.setAttribute('tabindex', '0');
-  leaf.setAttribute('role', 'button');
-  leaf.setAttribute('aria-label', `Read blessing from ${wish.showName !== false ? wish.name : 'A Well-Wisher'}`);
-
-  if (!isGrowing && delayMs > 0) {
-    leaf.style.opacity = '0';
-    leaf.style.animation = `leafFadeIn 0.8s ease ${delayMs}ms forwards`;
-  }
-
-  const displayName = wish.showName !== false ? wish.name : 'A Well-Wisher';
-  const leafId = 'leaf-grad-' + Math.random().toString(36).substring(2, 8);
-
-  // Autumn maple leaf colour palette — 4 variants inspired by the golden amber reference tree
-  const paletteMap = {
-    heart: { c0: '#ffe566', c1: '#f5a623', c2: '#c0392b', c3: '#8b1a1a', stroke: '#7b1212', vein: 'rgba(255,240,150,0.85)' },
-    leaf:  { c0: '#fff9a0', c1: '#ffb300', c2: '#e65100', c3: '#bf360c', stroke: '#a03000', vein: 'rgba(255,248,180,0.80)' },
-    gold:  { c0: '#fffde7', c1: '#ffd740', c2: '#ff8f00', c3: '#e65100', stroke: '#c67c00', vein: 'rgba(255,253,200,0.90)' },
-    tag:   { c0: '#f9fbe7', c1: '#c5e067', c2: '#7cb342', c3: '#33691e', stroke: '#4a7c20', vein: 'rgba(230,255,180,0.75)' }
-  };
-  const pal = paletteMap[slot.type] || paletteMap.heart;
-
-  leaf.innerHTML = `
-    <div class="tree-charm__ring" aria-hidden="true"></div>
-    <div class="tree-charm__string" aria-hidden="true"></div>
-    <div class="tree-leaf__body" title="${escapeHTML(displayName)}'s Wish">
-      <svg class="tree-leaf__svg" viewBox="0 0 48 54" fill="none" aria-hidden="true">
-        <defs>
-          <radialGradient id="${leafId}" cx="44%" cy="36%" r="65%" gradientUnits="userSpaceOnUse">
-            <stop offset="0%"   stop-color="${pal.c0}" />
-            <stop offset="28%"  stop-color="${pal.c1}" />
-            <stop offset="65%"  stop-color="${pal.c2}" />
-            <stop offset="100%" stop-color="${pal.c3}" />
-          </radialGradient>
-        </defs>
-        <!-- 5-LOBED AUTUMN MAPLE LEAF -->
-        <path d="
-          M 24 51 L 22 42
-          Q 16 44, 10 42 Q 8 38, 12 35
-          Q 2 33, 1 27 Q 6 23, 13 26
-          Q 7 17, 9 11 Q 15 11, 18 19
-          Q 20 7, 24 3
-          Q 28 7, 30 19 Q 33 11, 39 11
-          Q 41 17, 35 26 Q 42 23, 47 27
-          Q 46 33, 36 35 Q 40 38, 38 42
-          Q 32 44, 26 42 Z
-        " fill="url(#${leafId})" stroke="${pal.stroke}" stroke-width="0.7" stroke-linejoin="round"/>
-        <!-- Central mid-rib -->
-        <line x1="24" y1="51" x2="24" y2="5" stroke="${pal.vein}" stroke-width="1.1" stroke-linecap="round" opacity="0.9"/>
-        <!-- Upper lobe veins -->
-        <path d="M 24 20 Q 16 15, 10 12" stroke="${pal.vein}" stroke-width="0.75" stroke-linecap="round" opacity="0.8"/>
-        <path d="M 24 20 Q 32 15, 38 12" stroke="${pal.vein}" stroke-width="0.75" stroke-linecap="round" opacity="0.8"/>
-        <!-- Side lobe veins -->
-        <path d="M 22 30 Q 13 28, 4 26" stroke="${pal.vein}" stroke-width="0.7" stroke-linecap="round" opacity="0.7"/>
-        <path d="M 26 30 Q 35 28, 44 26" stroke="${pal.vein}" stroke-width="0.7" stroke-linecap="round" opacity="0.7"/>
-        <!-- Lower sub-veins -->
-        <path d="M 22 37 Q 16 38, 11 40" stroke="${pal.vein}" stroke-width="0.55" stroke-linecap="round" opacity="0.6"/>
-        <path d="M 26 37 Q 32 38, 37 40" stroke="${pal.vein}" stroke-width="0.55" stroke-linecap="round" opacity="0.6"/>
-        <!-- Fine secondary veins -->
-        <path d="M 18 24 Q 14 21, 11 19" stroke="${pal.vein}" stroke-width="0.45" stroke-linecap="round" opacity="0.5"/>
-        <path d="M 30 24 Q 34 21, 37 19" stroke="${pal.vein}" stroke-width="0.45" stroke-linecap="round" opacity="0.5"/>
-        <!-- Sunlit highlight -->
-        <ellipse cx="20" cy="18" rx="4" ry="3" fill="${pal.c0}" opacity="0.28" transform="rotate(-20,20,18)"/>
-      </svg>
-      <span class="tree-leaf__name-preview">${escapeHTML(displayName.slice(0, 9))}</span>
-    </div>
-    <span class="tree-leaf__tooltip">${escapeHTML(displayName)} 🍁</span>
-    ${isGrowing ? `<div class="tree-leaf__highlight-tag">Your Wish is Blooming on the Tree! 🍁</div>` : ''}
+  starBtn.innerHTML = `
+    <div class="star-glow-aura" style="animation-delay: ${animDelay}s;"></div>
+    <svg class="star-svg-shape" viewBox="0 0 24 24" style="width: ${sizeVariance}px; height: ${sizeVariance}px; animation-delay: ${animDelay}s;">
+      <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z"/>
+    </svg>
+    <div class="star-core-dot"></div>
+    <span class="star-name-tag">${escapeHTML(displayName)}${isLatest ? ' &bull; New' : ''}</span>
   `;
 
-  // Click to open detail modal
-  leaf.addEventListener('click', () => openBlessingModal(wish));
-  leaf.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      openBlessingModal(wish);
-    }
+  starBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openSkyStarPopover(wish, starBtn, pos);
   });
 
-  return leaf;
+  return starBtn;
 }
 
+/**
+ * Open Floating Popover Card for a selected star
+ */
+function openSkyStarPopover(wish, starEl, pos) {
+  const popover = $('#sky-star-popover');
+  const viewport = $('#sky-viewport');
+  const starsLayer = $('#sky-stars-layer');
+  if (!popover || !viewport) return;
 
-function openBlessingModal(wish) {
-  const leafModal = $('#blessing-view-modal');
-  const msgEl     = $('#leaf-view-message');
-  const authorEl  = $('#leaf-view-author');
+  // Dim surrounding stars
+  if (starsLayer) starsLayer.classList.add('sky-stars-dimmed');
+  $$('.sky-star').forEach(s => s.classList.remove('active'));
+  starEl.classList.add('active');
 
-  if (!leafModal) return;
+  const displayName = wish.showName !== false && wish.showName !== 'No' ? wish.name : 'A Well-Wisher';
+  const nameEl = $('#sky-popover-name');
+  const msgEl = $('#sky-popover-msg');
+  const dateEl = $('#sky-popover-date');
 
-  if (msgEl) msgEl.textContent = wish.message;
-  if (authorEl) {
-    const authorName = wish.showName !== false ? wish.name : 'A Well-Wisher';
-    authorEl.textContent = `— ${authorName}`;
-  }
+  if (nameEl) nameEl.textContent = displayName;
+  if (msgEl) msgEl.textContent = `“${wish.message}”`;
+  if (dateEl) dateEl.textContent = wish.date || 'Blessing in Sky';
 
-  leafModal.classList.add('open');
-  leafModal.setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden';
-}
+  popover.style.display = 'block';
+  popover.setAttribute('aria-hidden', 'false');
 
-function updateTreeCounters() {
-  const countNum   = $('#tree-counter-num');
-  const emptyState = $('#tree-empty-state');
-  const badgeWrap  = $('#tree-counter-badge');
+  // Calculate popover positioning
+  const vWidth = viewport.clientWidth;
+  const vHeight = viewport.clientHeight;
+  const popoverWidth = Math.min(340, vWidth - 32);
 
-  const count = allTreeWishes.length;
+  let leftPx = (pos.x / 100) * vWidth;
+  let topPx = (pos.y / 100) * vHeight;
 
-  if (countNum) countNum.textContent = count;
-
-  if (count === 0) {
-    if (emptyState) emptyState.style.display = 'block';
-    if (badgeWrap)  badgeWrap.style.display  = 'none';
+  // On desktop/tablet: anchor above or below the star
+  if (vWidth > 600) {
+    if (pos.y > 55) {
+      topPx = topPx - 180;
+    } else {
+      topPx = topPx + 30;
+    }
+    leftPx = Math.max(popoverWidth / 2 + 16, Math.min(vWidth - popoverWidth / 2 - 16, leftPx));
+    popover.style.left = `${leftPx}px`;
+    popover.style.top = `${topPx}px`;
+    popover.style.transform = 'translateX(-50%)';
   } else {
-    if (emptyState) emptyState.style.display = 'none';
-    if (badgeWrap)  badgeWrap.style.display  = 'block';
+    // On mobile: center inside viewport
+    popover.style.left = '50%';
+    popover.style.top = 'auto';
+    popover.style.bottom = '20px';
+    popover.style.transform = 'translateX(-50%)';
+  }
+
+  activeStarPopover = starEl;
+}
+
+function closeSkyStarPopover() {
+  const popover = $('#sky-star-popover');
+  const starsLayer = $('#sky-stars-layer');
+  if (popover) {
+    popover.style.display = 'none';
+    popover.setAttribute('aria-hidden', 'true');
+  }
+  if (starsLayer) {
+    starsLayer.classList.remove('sky-stars-dimmed');
+  }
+  $$('.sky-star').forEach(s => s.classList.remove('active'));
+  activeStarPopover = null;
+}
+
+function setupSkyPopover() {
+  const closeBtn = $('#sky-popover-close');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeSkyStarPopover);
+  }
+
+  // Click outside to close popover
+  document.addEventListener('click', (e) => {
+    const popover = $('#sky-star-popover');
+    if (popover && popover.style.display !== 'none') {
+      if (!popover.contains(e.target) && !e.target.closest('.sky-star')) {
+        closeSkyStarPopover();
+      }
+    }
+  });
+}
+
+/**
+ * Fast Animated Count-Up for Sky Blessings Pill
+ */
+function animateSkyBlessingCounter(targetNum) {
+  const countNum = $('#sky-blessings-num');
+  if (!countNum) return;
+  const target = Math.max(0, parseInt(targetNum, 10) || 0);
+
+  let current = 0;
+  const duration = 1200; // fast 1.2s
+  const startTime = performance.now();
+
+  function step(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    // Ease out quad
+    const easeOut = 1 - (1 - progress) * (1 - progress);
+    current = Math.round(target * easeOut);
+    countNum.textContent = current;
+
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    } else {
+      countNum.textContent = target;
+      const pill = $('#sky-counter-badge');
+      if (pill) {
+        pill.classList.add('pulse-highlight');
+        setTimeout(() => pill.classList.remove('pulse-highlight'), 700);
+      }
+    }
+  }
+
+  requestAnimationFrame(step);
+}
+
+function updateSkyCounter() {
+  const targetCount = allBlessings.length;
+  animateSkyBlessingCounter(targetCount);
+}
+
+function initSkyCounterObserver() {
+  const skySection = $('#sky-of-blessings');
+  if (!skySection) return;
+
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          updateSkyCounter();
+        }
+      });
+    }, { threshold: 0.15 });
+    observer.observe(skySection);
   }
 }
 
-// Global Google Sheets Web App Endpoint
-const _GOOGLE_SHEETS_SCRIPT_URL = window.GOOGLE_SHEETS_SCRIPT_URL || '';
+/**
+ * Setup "Light Your Star" Modal & Rising Particle Shooting Animation
+ */
+function setupSkyForm() {
+  const form = $('#star-blessing-form');
+  const nameInput = $('#star-input-name');
+  const msgInput = $('#star-input-message');
+  const charCounter = $('#star-char-counter');
+  const showNameCheck = $('#star-input-show-name');
+  const errorBox = $('#star-form-error');
+  const modal = $('#light-star-modal') || $('#greetings-modal');
+
+  // Character counter
+  if (msgInput && charCounter) {
+    msgInput.addEventListener('input', () => {
+      const len = msgInput.value.length;
+      charCounter.textContent = `${len} / 300`;
+      if (len >= 300) {
+        charCounter.style.color = '#ffd875';
+      } else {
+        charCounter.style.color = '#9cbda3';
+      }
+    });
+  }
+
+  // Modal Open Buttons
+  const openSkyBtn = $('#btn-open-sky-form');
+  const openGreetBtn = $('#btn-open-greetings-modal');
+  const openBlessingBtn = $('#btn-open-blessing-form');
+  const closeStarBtn = $('#close-star-modal') || $('#close-greetings-modal');
+
+  function openModal() {
+    if (!modal) return;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    if (errorBox) errorBox.style.display = 'none';
+  }
+
+  function closeModal() {
+    if (!modal) return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  if (openSkyBtn) openSkyBtn.addEventListener('click', openModal);
+  if (openGreetBtn) openGreetBtn.addEventListener('click', openModal);
+  if (openBlessingBtn) openBlessingBtn.addEventListener('click', openModal);
+  if (closeStarBtn) closeStarBtn.addEventListener('click', closeModal);
+
+  if (modal) {
+    modal.addEventListener('click', e => {
+      if (e.target === modal) closeModal();
+    });
+  }
+
+  // Form Submit Handler
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const rawName = nameInput ? nameInput.value.trim() : '';
+      const rawMsg = msgInput ? msgInput.value.trim() : '';
+      const showName = showNameCheck ? showNameCheck.checked : true;
+
+      // Validation
+      if (!rawName || !rawMsg) {
+        if (errorBox) {
+          errorBox.textContent = 'Please fill in both your name and blessing.';
+          errorBox.style.display = 'block';
+        }
+        return;
+      }
+
+      if (rawMsg.length > 300) {
+        if (errorBox) {
+          errorBox.textContent = 'Your blessing must be 300 characters or less.';
+          errorBox.style.display = 'block';
+        }
+        return;
+      }
+
+      const newWish = {
+        id: 'wish-' + Date.now(),
+        name: rawName,
+        message: rawMsg,
+        showName: showName,
+        date: 'Just now',
+        isNew: true
+      };
+
+      // 1. Close form modal immediately
+      closeModal();
+      form.reset();
+      if (charCounter) charCounter.textContent = '0 / 300';
+
+      // 2. Smoothly scroll into view of the Sky of Blessings
+      const skySection = $('#sky-of-blessings');
+      if (skySection) {
+        const rect = skySection.getBoundingClientRect();
+        if (rect.top < -50 || rect.bottom > window.innerHeight + 100) {
+          skySection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+
+      // 3. Save locally in localStorage
+      try {
+        const localSaved = JSON.parse(localStorage.getItem('wedding_blessings_sky') || '[]');
+        localSaved.unshift(newWish);
+        localStorage.setItem('wedding_blessings_sky', JSON.stringify(localSaved));
+      } catch (_) {}
+
+      // 4. Calculate target deterministic position for the new star
+      const seedKey = `${newWish.id}_${newWish.name}_${newWish.message}`;
+      const targetPos = getDeterministicSkyPosition(seedKey, allBlessings.length, allBlessings.length + 1);
+
+      // 5. Trigger Shooting Particle Ascent Animation
+      launchRisingStarParticle(targetPos, () => {
+        // Star bloom & add to sky permanently
+        allBlessings.unshift(newWish);
+        renderSkyStars(allBlessings);
+        updateSkyCounter();
+
+        // Show Starlight Toast Banner
+        showSkyToast(`Thank you ${showName ? rawName : 'dear friend'}! Your blessing now permanently shines in their sky. ✨`);
+
+        // Confetti celebration
+        launchConfetti();
+      });
+
+      // 6. Asynchronously sync to Google Sheet via Google Apps Script
+      syncWishToGoogleSheet(newWish);
+    });
+  }
+}
+
+/**
+ * Step 2 to Step 7 of New Star Animation:
+ * Particle rises upwards from bottom of sky to assigned position, expands with bloom pulse, and settles into twinkle.
+ */
+function launchRisingStarParticle(targetPos, onComplete) {
+  const particleLayer = $('#sky-particle-layer');
+  const viewport = $('#sky-viewport');
+  if (!particleLayer || !viewport) {
+    if (onComplete) onComplete();
+    return;
+  }
+
+  const vWidth = viewport.clientWidth;
+  const vHeight = viewport.clientHeight;
+
+  const startX = vWidth * 0.5;
+  const startY = vHeight - 30;
+  const targetX = (targetPos.x / 100) * vWidth;
+  const targetY = (targetPos.y / 100) * vHeight;
+
+  const particle = document.createElement('div');
+  particle.className = 'rising-star-particle';
+  particle.innerHTML = '<div class="rising-star-trail"></div>';
+  particle.style.left = `${startX}px`;
+  particle.style.top = `${startY}px`;
+  particleLayer.appendChild(particle);
+
+  const duration = 1600; // 1.6 seconds smooth upward travel
+  const startTime = performance.now();
+
+  function animate(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(1, elapsed / duration);
+
+    // Ease-out cubic curve
+    const ease = 1 - Math.pow(1 - progress, 3);
+
+    const currentX = startX + (targetX - startX) * ease;
+    const currentY = startY + (targetY - startY) * ease;
+
+    particle.style.left = `${currentX}px`;
+    particle.style.top = `${currentY}px`;
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      // Arrived at destination: remove particle and trigger bloom
+      particle.remove();
+
+      const burst = document.createElement('div');
+      burst.className = 'star-bloom-burst';
+      burst.style.left = `${targetX}px`;
+      burst.style.top = `${targetY}px`;
+      particleLayer.appendChild(burst);
+
+      setTimeout(() => {
+        burst.remove();
+        if (onComplete) onComplete();
+      }, 600);
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
+/**
+ * Toast notification for Sky of Blessings
+ */
+function showSkyToast(msg) {
+  const toast = $('#sky-toast');
+  const titleEl = $('#sky-toast-title');
+  if (!toast) return;
+
+  if (titleEl) titleEl.textContent = msg || 'Your blessing is now a light in their sky. ✨';
+  toast.style.display = 'flex';
+
+  setTimeout(() => {
+    toast.style.display = 'none';
+  }, 5000);
+}
 
 function syncWishToGoogleSheet(wish) {
   if (!wish || !wish.name || !wish.message) return;
 
-  const scriptUrl = window.GOOGLE_SHEETS_SCRIPT_URL || _GOOGLE_SHEETS_SCRIPT_URL;
-
+  const scriptUrl = window.GOOGLE_SHEETS_SCRIPT_URL || '';
   if (!scriptUrl) {
-    console.log('📌 Blessing saved locally & blooming on tree. Set GOOGLE_SHEETS_SCRIPT_URL to post to Google Sheets.');
+    console.log('📌 Blessing saved locally. Set window.GOOGLE_SHEETS_SCRIPT_URL to post to Google Sheets.');
     return;
   }
 
   const payload = {
     name: wish.name,
     message: wish.message,
+    category: wish.category || 'prayer',
     showName: wish.showName !== false ? 'Yes' : 'No',
     timestamp: wish.date || new Date().toLocaleString()
   };
 
   try {
-    if (scriptUrl.includes('script.google.com')) {
-      fetch(scriptUrl, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      }).then(() => {
-        console.log('✅ Blessing successfully synced to Google Sheet!');
-      }).catch(err => {
-        const queryParams = new URLSearchParams(payload).toString();
-        fetch(`${scriptUrl}?${queryParams}`, { mode: 'no-cors' }).catch(() => {});
-      });
-    } else {
-      fetch(scriptUrl, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      }).catch(() => {});
-    }
+    fetch(scriptUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(() => {
+      console.log('✅ Blessing successfully synced to Google Sheet!');
+    }).catch(err => {
+      const queryParams = new URLSearchParams(payload).toString();
+      fetch(`${scriptUrl}?${queryParams}`, { mode: 'no-cors' }).catch(() => {});
+    });
   } catch (err) {
     console.error('Error syncing to Google Sheet:', err);
   }
@@ -1289,24 +1529,196 @@ function escapeHTML(str) {
 
 /* ── 12. CELEBRATION PHOTO ALBUMS CONTROLLER ────────────────── */
 function initPhotoAlbumsCarousel() {
-  const container = $('#albums-marquee-container');
-  const prevBtn   = $('#albums-prev-btn');
-  const nextBtn   = $('#albums-next-btn');
-  if (!container) return;
+  const section   = $('#photo-albums');
+  const viewport  = $('#photo-albums-viewport');
+  const track     = $('#photo-albums-track');
+  const prevBtn   = $('#album-nav-prev');
+  const nextBtn   = $('#album-nav-next');
+  if (!section || !viewport || !track) return;
 
-  const scrollStep = 320;
+  // 1. Scroll Entrance Intersection Observer (Timeline 0.0s to 1.5s)
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          section.classList.add('in-view');
+          observer.unobserve(section);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+    observer.observe(section);
+  } else {
+    section.classList.add('in-view');
+  }
+
+  // 2. Carousel Sliding State & 5-Second Auto-Scroll
+  let currentIndex = 0;
+  let totalCards = track.querySelectorAll('.album-card').length;
+  let autoScrollTimer = null;
+
+  function getCardsPerView() {
+    const w = window.innerWidth;
+    if (w > 980) return 3;
+    if (w > 640) return 2;
+    return 1;
+  }
+
+  function updateCarousel() {
+    const cards = track.querySelectorAll('.album-card');
+    totalCards = cards.length;
+    if (totalCards === 0) return;
+
+    const perView = getCardsPerView();
+    const maxIndex = Math.max(0, totalCards - perView);
+    currentIndex = Math.max(0, Math.min(currentIndex, maxIndex));
+
+    const card = cards[0];
+    if (!card) return;
+    const cardWidth = card.getBoundingClientRect().width;
+    const gap = parseFloat(window.getComputedStyle(track).gap) || 24;
+    const offset = currentIndex * (cardWidth + gap);
+
+    track.style.transform = `translateX(-${offset}px)`;
+
+    if (prevBtn) prevBtn.style.opacity = '1';
+    if (nextBtn) nextBtn.style.opacity = '1';
+  }
+
+  function nextSlide() {
+    const perView = getCardsPerView();
+    const maxIndex = Math.max(0, totalCards - perView);
+    if (maxIndex <= 0) return;
+    if (currentIndex >= maxIndex) {
+      currentIndex = 0; // Seamless wrap back to start
+    } else {
+      currentIndex++;
+    }
+    updateCarousel();
+  }
+
+  function prevSlide() {
+    const perView = getCardsPerView();
+    const maxIndex = Math.max(0, totalCards - perView);
+    if (maxIndex <= 0) return;
+    if (currentIndex <= 0) {
+      currentIndex = maxIndex; // Wrap to end
+    } else {
+      currentIndex--;
+    }
+    updateCarousel();
+  }
+
+  function startAutoScroll() {
+    stopAutoScroll();
+    autoScrollTimer = setInterval(nextSlide, 5000);
+  }
+
+  function stopAutoScroll() {
+    if (autoScrollTimer) {
+      clearInterval(autoScrollTimer);
+      autoScrollTimer = null;
+    }
+  }
+
+  // Start auto-scrolling
+  startAutoScroll();
+
+  // Pause on hover, resume on leave
+  if (viewport) {
+    viewport.addEventListener('mouseenter', stopAutoScroll);
+    viewport.addEventListener('mouseleave', startAutoScroll);
+  }
 
   if (prevBtn) {
     prevBtn.addEventListener('click', () => {
-      container.scrollBy({ left: -scrollStep, behavior: 'smooth' });
+      prevSlide();
+      startAutoScroll(); // reset timer
     });
   }
 
   if (nextBtn) {
     nextBtn.addEventListener('click', () => {
-      container.scrollBy({ left: scrollStep, behavior: 'smooth' });
+      nextSlide();
+      startAutoScroll(); // reset timer
     });
   }
+
+  window.addEventListener('resize', updateCarousel);
+
+  // 3. Touch Swipe Handling for Mobile
+  let startX = 0;
+  let currentX = 0;
+  let isSwiping = false;
+
+  viewport.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+      startX = e.touches[0].clientX;
+      isSwiping = true;
+      stopAutoScroll();
+    }
+  }, { passive: true });
+
+  viewport.addEventListener('touchmove', (e) => {
+    if (!isSwiping || e.touches.length !== 1) return;
+    currentX = e.touches[0].clientX;
+  }, { passive: true });
+
+  viewport.addEventListener('touchend', () => {
+    if (!isSwiping) return;
+    isSwiping = false;
+    const diff = startX - currentX;
+    if (Math.abs(diff) > 40) {
+      if (diff > 0) {
+        nextSlide();
+      } else {
+        prevSlide();
+      }
+    }
+    startAutoScroll();
+  });
+
+  // 4. Fetch additional photos dynamically from Google Drive if available
+  const scriptUrl = window.GOOGLE_SHEETS_SCRIPT_URL || '';
+  if (scriptUrl) {
+    fetch(`${scriptUrl}?action=album`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && Array.isArray(data.images) && data.images.length > 0) {
+          renderCarouselCards(data.images);
+        }
+      })
+      .catch(() => {});
+  }
+
+  function renderCarouselCards(images) {
+    track.innerHTML = '';
+
+    images.forEach((item, idx) => {
+      const a = document.createElement('a');
+      a.href = 'album.html';
+      a.className = `album-card album-card--${idx + 1}`;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+
+      const title = item.name ? item.name.replace(/\.[^/.]+$/, "") : `Moment ${idx + 1}`;
+      const thumb = item.thumbnailUrl || `https://lh3.googleusercontent.com/d/${item.id}=w800`;
+
+      a.innerHTML = `
+        <div class="album-card__img-box">
+          <img src="${thumb}" alt="${escapeHTML(title)}" loading="lazy" class="album-card__photo" />
+        </div>
+      `;
+      track.appendChild(a);
+    });
+
+    totalCards = images.length;
+    currentIndex = 0;
+    updateCarousel();
+    startAutoScroll();
+  }
+
+  // Initial calculation
+  setTimeout(updateCarousel, 100);
 }
 
 /* ── 13. CELEBRATORY CONFETTI ENGINE ────────────────────────── */
@@ -1416,7 +1828,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initLazyImages();
   initModals();
   initPhotoAlbumsCarousel();
-  initTreeOfBlessings();
+  initSkyOfBlessings();
   initInteractive3DTilt();
 });
 

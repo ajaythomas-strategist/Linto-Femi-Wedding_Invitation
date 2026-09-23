@@ -11,12 +11,19 @@
   // Configuration — Strictly Google Drive Folder (1jchGI4-6ybS0-vmh8HYU9cSWWV3BpJvU)
   const CONFIG = {
     folderId: '1jchGI4-6ybS0-vmh8HYU9cSWWV3BpJvU',
-    driveFeedUrl: '', 
+    get driveFeedUrl() {
+      if (window.GOOGLE_SHEETS_SCRIPT_URL) {
+        return window.GOOGLE_SHEETS_SCRIPT_URL.includes('?') 
+          ? `${window.GOOGLE_SHEETS_SCRIPT_URL}&action=album`
+          : `${window.GOOGLE_SHEETS_SCRIPT_URL}?action=album`;
+      }
+      return '';
+    },
     // Photos strictly sourced from user's Google Drive folder: 1jchGI4-6ybS0-vmh8HYU9cSWWV3BpJvU
     fallbackImages: [
       {
         id: '1Axi4HfMKQ3P_pN807TGyQMqtwxuhNGem',
-        name: 'Linto and Femi — Together in Love',
+        name: 'Linto & Femi — Together in Love',
         thumb: 'https://lh3.googleusercontent.com/d/1Axi4HfMKQ3P_pN807TGyQMqtwxuhNGem=w800',
         full: 'https://lh3.googleusercontent.com/d/1Axi4HfMKQ3P_pN807TGyQMqtwxuhNGem=w1600',
         download: 'https://drive.google.com/uc?export=download&id=1Axi4HfMKQ3P_pN807TGyQMqtwxuhNGem',
@@ -33,13 +40,21 @@
         scriptBadge: 'The Bride ♡'
       },
       {
+        id: '1a_FjmQM-5R_i3R_-0iLb9_PO452Sk2IE',
+        name: 'Linto — The Joyful Groom',
+        thumb: 'https://lh3.googleusercontent.com/d/1a_FjmQM-5R_i3R_-0iLb9_PO452Sk2IE=w800',
+        full: 'https://lh3.googleusercontent.com/d/1a_FjmQM-5R_i3R_-0iLb9_PO452Sk2IE=w1600',
+        download: 'https://drive.google.com/uc?export=download&id=1a_FjmQM-5R_i3R_-0iLb9_PO452Sk2IE',
+        fallback: 'Images/Groom.jpeg',
+        scriptBadge: 'The Groom ♡'
+      },
+      {
         id: '1I-ZftraYW6cIUy4hc6Pym1Q1zRrLeXlW',
         name: 'Linto — The Blessed Groom',
         thumb: 'https://lh3.googleusercontent.com/d/1I-ZftraYW6cIUy4hc6Pym1Q1zRrLeXlW=w800',
         full: 'https://lh3.googleusercontent.com/d/1I-ZftraYW6cIUy4hc6Pym1Q1zRrLeXlW=w1600',
         download: 'https://drive.google.com/uc?export=download&id=1I-ZftraYW6cIUy4hc6Pym1Q1zRrLeXlW',
-        fallback: 'Images/Groom.jpeg',
-        scriptBadge: 'The Groom ♡'
+        fallback: 'Images/Groom.jpeg'
       },
       {
         id: '1ws2vrQeg3SV9z1BieaVEimCUPQpFBdF_',
@@ -116,20 +131,21 @@
     galleryEl.innerHTML      = '';
 
     try {
-      if (CONFIG.driveFeedUrl) {
-        const res = await fetch(CONFIG.driveFeedUrl);
+      const feedUrl = CONFIG.driveFeedUrl;
+      if (feedUrl) {
+        const res = await fetch(feedUrl);
         if (!res.ok) throw new Error('Drive feed response error');
         const data = await res.json();
         if (data && Array.isArray(data.images) && data.images.length > 0) {
           galleryImages = data.images.map((item, idx) => ({
             id: item.id || `drive-${idx}`,
             name: item.name ? item.name.replace(/\.[^/.]+$/, "") : `Linto & Femi — Memory ${idx + 1}`,
-            thumb: item.thumbnailUrl || `https://drive.google.com/thumbnail?id=${item.id}&sz=w1200`,
-            full: item.downloadUrl || item.viewUrl || `https://drive.google.com/uc?export=view&id=${item.id}`,
+            thumb: item.thumbnailUrl || `https://lh3.googleusercontent.com/d/${item.id}=w800`,
+            full: item.fullUrl || item.downloadUrl || `https://lh3.googleusercontent.com/d/${item.id}=w1600`,
             scriptBadge: idx === 0 ? 'Better Together ♡' : null
           }));
         } else {
-          galleryImages = [];
+          galleryImages = [...CONFIG.fallbackImages];
         }
       } else {
         // Use realistic high-fidelity wedding photo dataset
