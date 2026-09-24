@@ -406,40 +406,44 @@ button {
 /* ── Full-Bleed Photo Canvas & Natural Gradient Blend ──────── */
 .hero__photo-canvas {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 58%;
+  height: 100%;
   pointer-events: none;
   z-index: 1;
+  overflow: hidden;
 }
 
 .hero__photo-img {
   position: absolute;
   top: 0;
   left: 0;
-  width: 64%;
+  width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 25% 42%;
+  object-position: center 18%;
 }
 
 .hero__photo-overlay {
   position: absolute;
   inset: 0;
   background:
-    /* Horizontal blend from couple into deep emerald background on the right */
+    /* Horizontal blend from photo on left into deep emerald */
     linear-gradient(to right,
       transparent 0%,
-      rgba(8, 22, 13, 0.05) 22%,
-      rgba(8, 22, 13, 0.35) 38%,
-      rgba(8, 22, 13, 0.85) 52%,
-      #08160d 64%,
+      rgba(8, 22, 13, 0.0) 30%,
+      rgba(8, 22, 13, 0.25) 55%,
+      rgba(8, 22, 13, 0.75) 78%,
+      #08160d 98%,
       #08160d 100%
     ),
-    /* Soft top and bottom framing */
+    /* Subtle top and bottom shadow for text contrast */
     linear-gradient(180deg,
-      rgba(8, 22, 13, 0.65) 0%,
-      transparent 18%,
-      transparent 76%,
-      rgba(8, 22, 13, 0.88) 100%
+      rgba(8, 22, 13, 0.45) 0%,
+      transparent 14%,
+      transparent 82%,
+      rgba(8, 22, 13, 0.85) 100%
     );
 }
 
@@ -464,22 +468,22 @@ button {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.25rem;
-  background: none;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  border: none;
-  border-radius: 0;
-  padding: 0;
-  box-shadow: none;
+  gap: 0.3rem;
+  background: rgba(8, 22, 13, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(202, 163, 89, 0.25);
+  border-radius: 12px;
+  padding: 0.75rem 1.1rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
 .hero__quote-leaf-svg {
-  width: 24px;
-  height: 24px;
-  margin-bottom: 0.2rem;
+  width: 22px;
+  height: 22px;
+  margin-bottom: 0.15rem;
   opacity: 0.95;
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
 }
 
 .hero__quote-content {
@@ -489,31 +493,31 @@ button {
 
 .hero__quote-eyebrow {
   font-family: var(--font-sans);
-  font-size: clamp(0.55rem, 0.85vw, 0.65rem);
+  font-size: clamp(0.55rem, 0.8vw, 0.62rem);
   font-weight: 600;
   letter-spacing: 0.22em;
-  line-height: 1.5;
-  color: #3b5344;
+  line-height: 1.45;
+  color: #caa359;
   text-transform: uppercase;
 }
 
 .hero__quote-body {
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: clamp(0.88rem, 1.2vw, 1.05rem);
+  font-size: clamp(0.82rem, 1.1vw, 0.95rem);
   font-weight: 400;
-  color: #213a2b;
+  color: #fbf8ee;
   line-height: 1.35;
-  margin-top: 0.35rem;
+  margin-top: 0.25rem;
 }
 
 .hero__quote-citation {
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: clamp(0.72rem, 0.95vw, 0.82rem);
+  font-size: clamp(0.7rem, 0.9vw, 0.78rem);
   font-weight: 400;
-  color: #4b6655;
-  margin-top: 0.18rem;
+  color: rgba(202, 163, 89, 0.85);
+  margin-top: 0.15rem;
   display: block;
 }
 
@@ -2031,26 +2035,24 @@ button {
 
 .couple__profile--groom .couple__arch-img,
 .couple__arch-img--groom {
-  object-position: 26% 50%;
-  transform: scale(1.36);
-  transform-origin: 26% 50%;
+  object-position: center 20%;
+  transform: none;
 }
 
 .couple__profile--bride .couple__arch-img,
 .couple__arch-img--bride {
-  object-position: 74% 65%;
-  transform: scale(1.42);
-  transform-origin: 74% 65%;
+  object-position: center 20%;
+  transform: none;
 }
 
 @media (hover: hover) {
   .couple__profile--groom .couple__luxury-frame:hover .couple__arch-img,
   .couple__profile--groom .couple__arch-frame:hover .couple__arch-img {
-    transform: scale(1.42);
+    transform: scale(1.03);
   }
   .couple__profile--bride .couple__luxury-frame:hover .couple__arch-img,
   .couple__profile--bride .couple__arch-frame:hover .couple__arch-img {
-    transform: scale(1.48);
+    transform: scale(1.03);
   }
   .couple__luxury-frame:hover {
     box-shadow: 
