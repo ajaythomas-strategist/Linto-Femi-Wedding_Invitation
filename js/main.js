@@ -908,9 +908,19 @@ function initSkyAmbientCanvas() {
 }
 
 /**
- * Load blessings strictly from Google Sheet Web App / CSV (Zero Hardcoded Seeds, 1:1 Google Sheet Sync)
+ * Load blessings from LocalStorage + Google Sheet CSV (1:1 Google Sheet Sync + Instant Local Cache)
  */
 function loadSkyBlessingsData() {
+  // 1. Immediately render local blessings on load
+  try {
+    const local = JSON.parse(localStorage.getItem('wedding_blessings_sky') || '[]');
+    if (Array.isArray(local) && local.length > 0) {
+      allBlessings = local;
+      renderSkyStars(allBlessings);
+      updateSkyCounter();
+    }
+  } catch (_) {}
+
   const scriptUrl = window.GOOGLE_SHEETS_SCRIPT_URL || '';
   const csvEndpoint = 'https://docs.google.com/spreadsheets/d/19TFYKdVRnqmQjT_R7n5rOukO1MdpIDj3mjsM3Plu0O0/export?format=csv&gid=0';
 
@@ -1010,14 +1020,16 @@ function combineAndRenderSkyBlessings(remote) {
     }
   }
 
-  // Remote Google Sheet records in descending order (latest records first)
-  (remote || []).slice().reverse().forEach(addWish);
-
-  // Clear stale local storage to guarantee 1:1 fidelity with Google Sheet
+  // Local additions first
   try {
-    localStorage.removeItem('wedding_blessings_sky');
-    localStorage.removeItem('wedding_wishes');
+    const local = JSON.parse(localStorage.getItem('wedding_blessings_sky') || '[]');
+    if (Array.isArray(local)) {
+      local.forEach(addWish);
+    }
   } catch (_) {}
+
+  // Remote Google Sheet records in descending order
+  (remote || []).slice().reverse().forEach(addWish);
 
   allBlessings = combined;
   renderSkyStars(allBlessings);
@@ -1026,8 +1038,8 @@ function combineAndRenderSkyBlessings(remote) {
 
 /**
  * Deterministic Organic Coordinate Generator
- * Ensures the SAME blessing ALWAYS appears in the EXACT same position across all page loads.
- * Positions stars strictly in the celestial night sky (Y: 6% to 35%), keeping couple area completely clear.
+ * Positions stars clearly across the vast open celestial dome (Y: 16% to 60%)
+ * Avoids header box at the top and couple at the bottom.
  */
 function getDeterministicSkyPosition(seedStr, index, totalCount) {
   let hash = 0;
@@ -1037,27 +1049,31 @@ function getDeterministicSkyPosition(seedStr, index, totalCount) {
   }
   const absHash = Math.abs(hash);
 
-  // Golden ratio pseudorandom dispersion
   const phi = 0.618033988749895;
   const randX = ((absHash % 1000) / 1000 + (index + 1) * phi) % 1;
   const randY = (((absHash >> 3) % 1000) / 1000 + (index + 1) * phi * 1.618) % 1;
 
-  // Spread horizontally across panoramic canvas (8% to 92%)
-  let posX = 8 + randX * 84;
-  
-  // Height strictly in upper night sky:
-  // Left side (above the couple): Y strictly 6% to 28% (never reaches couple's heads/bodies)
-  // Right side (above hills & church): Y strictly 8% to 35%
+  // 3 Wide Celestial Sky Zones
+  const zone = index % 3;
+  let posX = 0;
   let posY = 0;
-  if (posX < 46) {
-    posY = 6 + (randY * 22);
+
+  if (zone === 0) {
+    // Left Celestial Sky
+    posX = 8 + randX * 24;
+    posY = 18 + randY * 38;
+  } else if (zone === 1) {
+    // Right Celestial Sky
+    posX = 68 + randX * 24;
+    posY = 16 + randY * 40;
   } else {
-    posY = 8 + (randY * 27);
+    // Central Celestial Sky (below title badge)
+    posX = 34 + randX * 32;
+    posY = 36 + randY * 22;
   }
 
-  // Final bounds clamp - strictly in the celestial dome
-  posX = Number(Math.max(7, Math.min(93, posX)).toFixed(1));
-  posY = Number(Math.max(6, Math.min(35, posY)).toFixed(1));
+  posX = Number(Math.max(8, Math.min(92, posX)).toFixed(1));
+  posY = Number(Math.max(16, Math.min(60, posY)).toFixed(1));
 
   return { x: posX, y: posY };
 }
@@ -1096,19 +1112,23 @@ function createSkyStarElement(wish, index, total) {
   starBtn.style.top = `${pos.y}%`;
   starBtn.setAttribute('type', 'button');
   
-  const displayName = wish.showName !== false && wish.showName !== 'No' ? wish.name : 'A Well-Wisher';
+  const displayName = wish.showName !== false && wish.showName !== 'No' ? wish.name : 'Well-Wisher';
   starBtn.setAttribute('aria-label', `Star blessing from ${displayName}${isLatest ? ' (Latest Wish)' : ''}`);
 
-  // Scale / star shape variance based on index
-  const sizeVariance = isLatest ? 22 : (14 + (index % 4) * 2);
-  const animDelay = ((index * 0.35) % 3).toFixed(2);
+  const starSize = isLatest ? 30 : (24 + (index % 3) * 3);
+  const animDelay = ((index * 0.4) % 3).toFixed(2);
 
   starBtn.innerHTML = `
+    <div class="star-pulse-ring" style="animation-delay: ${animDelay}s;"></div>
     <div class="star-glow-aura" style="animation-delay: ${animDelay}s;"></div>
-    <svg class="star-svg-shape" viewBox="0 0 24 24" style="width: ${sizeVariance}px; height: ${sizeVariance}px; animation-delay: ${animDelay}s;">
-      <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z"/>
+    <svg class="star-svg-shape" viewBox="0 0 24 24" style="width: ${starSize}px; height: ${starSize}px; animation-delay: ${animDelay}s;">
+      <!-- 8-Pointed Radiant Celestial Star -->
+      <path d="M12,0 L14.2,8.8 L23,11 L14.2,13.2 L12,22 L9.8,13.2 L1,11 L9.8,8.8 Z" fill="url(#starGoldGrad)"/>
+      <path d="M12,4 L13.5,9.5 L19,11 L13.5,12.5 L12,18 L10.5,12.5 L5,11 L10.5,9.5 Z" fill="#ffffff" opacity="0.95"/>
+      <circle cx="12" cy="11" r="2.5" fill="#ffffff"/>
     </svg>
     <div class="star-core-dot"></div>
+    <span class="sky-star-name-badge">${displayName}</span>
   `;
 
   starBtn.addEventListener('click', (e) => {

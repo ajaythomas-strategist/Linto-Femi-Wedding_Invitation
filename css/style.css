@@ -5983,83 +5983,129 @@ button {
   position: absolute;
   transform: translate(-50%, -50%);
   cursor: pointer;
-  z-index: 5;
+  z-index: 6;
   outline: none;
   background: transparent;
   border: none;
   padding: 10px;
-  margin: -10px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s ease, filter 0.3s ease;
+  gap: 3px;
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s ease, filter 0.3s ease;
 }
 
 .sky-star:hover {
-  transform: translate(-50%, -50%) scale(1.6);
-  z-index: 10;
+  transform: translate(-50%, -50%) scale(1.35);
+  z-index: 20;
 }
 
 .sky-star.active {
-  transform: translate(-50%, -50%) scale(1.85);
-  z-index: 12;
+  transform: translate(-50%, -50%) scale(1.45);
+  z-index: 25;
+}
+
+/* Pulsing Radiant Ring */
+.star-pulse-ring {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 216, 117, 0.65);
+  pointer-events: none;
+  animation: starPulseRing 3s infinite cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes starPulseRing {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  70% { transform: scale(1.9); opacity: 0; }
+  100% { transform: scale(1.9); opacity: 0; }
+}
+
+.star-glow-aura {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 235, 170, 0.85) 0%, rgba(202, 163, 89, 0.38) 45%, transparent 75%);
+  filter: blur(4px);
+  pointer-events: none;
+  animation: starAmbientGlow 3s infinite ease-in-out;
+}
+
+.star-svg-shape {
+  fill: #fffdf5;
+  filter: drop-shadow(0 0 10px rgba(255, 220, 130, 0.95)) drop-shadow(0 0 20px rgba(202, 163, 89, 0.85));
+  transition: transform 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.star-core-dot {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 8px #ffffff, 0 0 16px #ffd875;
+  z-index: 3;
 }
 
 /* Latest Blessing Star Highlight */
 .sky-star--latest {
-  z-index: 8;
+  z-index: 10;
 }
 
 .sky-star--latest .star-glow-aura {
-  width: 46px;
-  height: 46px;
-  background: radial-gradient(circle, rgba(255, 235, 170, 0.95) 0%, rgba(202, 163, 89, 0.45) 45%, transparent 70%);
-  filter: blur(5px);
+  width: 56px;
+  height: 56px;
+  background: radial-gradient(circle, rgba(255, 235, 170, 1) 0%, rgba(202, 163, 89, 0.5) 45%, transparent 72%);
+  filter: blur(6px);
   animation: starAmbientGlow 2.5s infinite ease-in-out;
 }
 
 .sky-star--latest .star-svg-shape {
-  fill: #ffffff;
-  filter: drop-shadow(0 0 10px #ffd875) drop-shadow(0 0 24px rgba(255, 216, 117, 0.95));
+  filter: drop-shadow(0 0 12px #ffd875) drop-shadow(0 0 28px rgba(255, 216, 117, 1));
   animation: latestStarPulse 2.5s infinite ease-in-out;
 }
 
 @keyframes latestStarPulse {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-}
-
-.star-glow-aura {
-  position: absolute;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 235, 170, 0.75) 0%, rgba(202, 163, 89, 0.3) 50%, transparent 70%);
-  filter: blur(4px);
-  pointer-events: none;
-  animation: starAmbientGlow 3.5s infinite ease-in-out;
-}
-
-.star-svg-shape {
-  width: 18px;
-  height: 18px;
-  fill: #fffdf5;
-  filter: drop-shadow(0 0 8px rgba(255, 220, 130, 0.95)) drop-shadow(0 0 18px rgba(202, 163, 89, 0.85));
-  transition: transform 0.3s ease;
-}
-
-.star-core-dot {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: #ffffff;
-  box-shadow: 0 0 8px #ffffff;
+  50% { transform: scale(1.18); }
 }
 
 @keyframes starAmbientGlow {
-  0%, 100% { opacity: 0.5; transform: scale(0.85); }
-  50% { opacity: 1; transform: scale(1.18); }
+  0%, 100% { opacity: 0.6; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+/* Floating Guest Name Badge below the star */
+.sky-star-name-badge {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: #fff6d8;
+  background: rgba(9, 18, 32, 0.85);
+  border: 1px solid rgba(255, 216, 117, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 2px 9px;
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55), 0 0 10px rgba(202, 163, 89, 0.3);
+  white-space: nowrap;
+  pointer-events: none;
+  transition: background 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+  transform: translateY(2px);
+  z-index: 3;
+}
+
+.sky-star:hover .sky-star-name-badge {
+  background: rgba(18, 38, 62, 0.95);
+  border-color: #ffd875;
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7), 0 0 14px rgba(255, 216, 117, 0.6);
 }
 
 /* ── Rising Particle Layer (New Submissions) ── */
