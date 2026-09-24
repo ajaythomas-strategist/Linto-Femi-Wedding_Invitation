@@ -5622,7 +5622,7 @@ button {
 .sky-panoramic-bg {
   position: absolute;
   inset: 0;
-  background-image: url("../Images/sky-couple-stargazing-clean.jpg?v=4");
+  background-image: url("../Images/sky-couple-stargazing-clean.jpg?v=5");
   background-position: center bottom;
   background-size: cover;
   background-repeat: no-repeat;
@@ -5890,7 +5890,7 @@ button {
 /* Responsive Sky Background Switch */
 @media (max-width: 768px) {
   .sky-panoramic-bg {
-    background-image: url("../Images/sky-couple-stargazing-clean.jpg?v=4");
+    background-image: url("../Images/sky-couple-stargazing-clean.jpg?v=5");
     background-position: center bottom;
     background-size: cover;
   }
