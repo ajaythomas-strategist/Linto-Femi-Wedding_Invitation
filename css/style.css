@@ -1984,33 +1984,41 @@ button {
   margin-bottom: clamp(1.25rem, 2.5vw, 1.85rem);
 }
 
-/* Arch Container */
+/* ── Luxury Wedding Portrait Frame with Double Gold Fillet ── */
 .couple__arch-wrap {
   position: relative;
-  width: clamp(240px, 27vw, 330px);
-  aspect-ratio: 3 / 4;
+  width: clamp(250px, 28vw, 325px);
+  aspect-ratio: 3.4 / 4.4;
   margin-inline: auto;
+  padding: 6px;
 }
 
-.couple__arch-frame {
+.couple__arch-frame,
+.couple__luxury-frame {
   width: 100%;
   height: 100%;
-  overflow: hidden;
   position: relative;
   z-index: 2;
-  box-shadow: 0 16px 42px rgba(185, 151, 91, 0.24), 0 6px 18px rgba(18, 56, 37, 0.1), inset 0 0 0 2px rgba(255, 255, 255, 0.95);
-  border: 2.5px solid #caa359;
-  background-color: #f6f2ea;
-  border-radius: 50% 50% 48% 48% / 54% 54% 46% 46%;
+  border-radius: 28px;
+  background: linear-gradient(145deg, #fffefb, #f6f1e7);
+  padding: 7px; /* Elegant ivory mat gap for double fillet */
+  border: 2px solid #caa359; /* Outer polished gold rim */
+  box-shadow: 
+    0 18px 45px rgba(185, 151, 91, 0.22), 
+    0 6px 18px rgba(23, 63, 43, 0.08),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.95);
   transition: transform 0.6s var(--ease-elegant), box-shadow 0.6s var(--ease-elegant);
 }
 
-.couple__profile--groom .couple__arch-frame {
-  border-radius: 50% 50% 48% 48% / 54% 54% 46% 46%;
-}
-
-.couple__profile--bride .couple__arch-frame {
-  border-radius: 50% 50% 48% 48% / 54% 54% 46% 46%;
+.couple__frame-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1.5px solid #caa359; /* Inner delicate gold fillet line */
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.08);
+  background-color: #f7f3ec;
 }
 
 .couple__arch-img {
@@ -2021,74 +2029,106 @@ button {
   transition: transform 0.8s var(--ease-elegant);
 }
 
-.couple__profile--groom .couple__arch-img {
-  object-position: 26% 52%;
+.couple__profile--groom .couple__arch-img,
+.couple__arch-img--groom {
+  object-position: 26% 50%;
   transform: scale(1.36);
-  transform-origin: 26% 52%;
+  transform-origin: 26% 50%;
 }
 
-.couple__profile--bride .couple__arch-img {
-  object-position: 74% 68%;
+.couple__profile--bride .couple__arch-img,
+.couple__arch-img--bride {
+  object-position: 74% 65%;
   transform: scale(1.42);
-  transform-origin: 74% 68%;
+  transform-origin: 74% 65%;
 }
 
 @media (hover: hover) {
+  .couple__profile--groom .couple__luxury-frame:hover .couple__arch-img,
   .couple__profile--groom .couple__arch-frame:hover .couple__arch-img {
     transform: scale(1.42);
   }
+  .couple__profile--bride .couple__luxury-frame:hover .couple__arch-img,
   .couple__profile--bride .couple__arch-frame:hover .couple__arch-img {
     transform: scale(1.48);
   }
+  .couple__luxury-frame:hover {
+    box-shadow: 
+      0 24px 55px rgba(185, 151, 91, 0.3), 
+      0 8px 24px rgba(23, 63, 43, 0.12),
+      inset 0 0 0 1px rgba(255, 255, 255, 1);
+  }
 }
 
-/* Orbiting Golden Filament Arc with Accent Dots */
-.couple__orbit-filament {
+/* 4 Refined Corner Filigree Accents */
+.couple__corner-filigree {
   position: absolute;
-  top: -6%;
-  left: -8%;
-  width: 116%;
-  height: 112%;
+  width: 24px;
+  height: 24px;
   pointer-events: none;
-  z-index: 1;
-  filter: drop-shadow(0 2px 8px rgba(202, 163, 89, 0.35));
+  z-index: 4;
+  border-color: #caa359;
+  border-style: solid;
+  border-width: 0;
+  opacity: 0.95;
 }
 
-.couple__orbit-filament--groom {
-  top: -8%;
-  left: -10%;
-  transform: rotate(-3deg);
-}
-
-.couple__orbit-filament--bride {
-  top: -6%;
-  right: -10%;
-  left: auto;
-  transform: rotate(3deg);
-}
-
-/* Foliage Wreath Overlays (Framing outside of photo) */
-.couple__arch-wreath {
+.couple__corner-filigree::after {
+  content: '';
   position: absolute;
-  pointer-events: none;
-  z-index: 1;
-  filter: drop-shadow(0 6px 14px rgba(18, 56, 37, 0.12));
+  width: 5px;
+  height: 5px;
+  background-color: #caa359;
+  border-radius: 50%;
+  box-shadow: 0 0 4px rgba(202, 163, 89, 0.6);
 }
 
-.couple__arch-wreath--groom {
-  top: -12%;
-  left: -14%;
-  width: 78%;
-  height: 78%;
-  transform: rotate(-15deg);
+.couple__corner-filigree--tl {
+  top: 3px;
+  left: 3px;
+  border-top-width: 2px;
+  border-left-width: 2px;
+  border-top-left-radius: 25px;
+}
+.couple__corner-filigree--tl::after {
+  top: 1px;
+  left: 1px;
 }
 
-.couple__arch-wreath--bride {
-  bottom: -12%;
-  right: -14%;
-  width: 78%;
-  height: 78%;
-  transform: scaleX(-1) rotate(165deg);
+.couple__corner-filigree--tr {
+  top: 3px;
+  right: 3px;
+  border-top-width: 2px;
+  border-right-width: 2px;
+  border-top-right-radius: 25px;
+}
+.couple__corner-filigree--tr::after {
+  top: 1px;
+  right: 1px;
+}
+
+.couple__corner-filigree--bl {
+  bottom: 3px;
+  left: 3px;
+  border-bottom-width: 2px;
+  border-left-width: 2px;
+  border-bottom-left-radius: 25px;
+}
+.couple__corner-filigree--bl::after {
+  bottom: 1px;
+  left: 1px;
+}
+
+.couple__corner-filigree--br {
+  bottom: 3px;
+  right: 3px;
+  border-bottom-width: 2px;
+  border-right-width: 2px;
+  border-bottom-right-radius: 25px;
+}
+.couple__corner-filigree--br::after {
+  bottom: 1px;
+  right: 1px;
 }
 
 /* Script Notes beside Portraits */

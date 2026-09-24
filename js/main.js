@@ -18,7 +18,7 @@ const weddingConfig = {
   musicFile:          "Music/Sunlight_on_the_Aisle.mp3",
   musicVolume:        0.5,                    // 0.0 – 1.0
   // Times for calendar events (IST)
-  ceremonyTime:       "10:30",
+  ceremonyTime:       "11:00",
   ceremonyEndTime:    "12:30",
   receptionTime:      "12:30",
   receptionEndTime:   "15:30",
@@ -61,7 +61,7 @@ function initFloatingNav() {
 
 /* ── 2. COUNTDOWN ───────────────────────────────────────────── */
 function initCountdown() {
-  const wedding  = new Date(`${weddingConfig.weddingDate}T10:30:00+05:30`);
+  const wedding  = new Date(`${weddingConfig.weddingDate}T11:00:00+05:30`);
   const slots = {
     days:    $('#cd-days-slot'),
     hours:   $('#cd-hours-slot'),
@@ -542,7 +542,7 @@ function initCalendarButtons() {
     weddingConfig.ceremonyTime,
     weddingConfig.ceremonyEndTime,
     weddingConfig.weddingVenue,
-    `Wedding Ceremony of ${weddingConfig.groom} & ${weddingConfig.bride}.\n\nDate: ${weddingConfig.weddingDateDisplay}\nTime: 10:30 AM IST\nVenue: ${weddingConfig.weddingVenue}\nLocation map: https://maps.google.com/?q=St+Mary's+Church+Chittissery+Thrissur\n\nReception to follow at Jubilee Memorial Parish Hall, Chittissery.`
+    `Wedding Ceremony of ${weddingConfig.groom} & ${weddingConfig.bride}.\n\nDate: ${weddingConfig.weddingDateDisplay}\nTime: 11:00 AM IST\nVenue: ${weddingConfig.weddingVenue}\nLocation map: https://maps.google.com/?q=St+Mary's+Church+Chittissery+Thrissur\n\nReception to follow at Jubilee Memorial Parish Hall, Chittissery.`
   );
 
   const receptionUrl = buildGoogleCalendarUrl(
@@ -1721,7 +1721,7 @@ function initPhotoAlbumsCarousel() {
   setTimeout(updateCarousel, 100);
 }
 
-/* ── 13. CELEBRATORY CONFETTI ENGINE ────────────────────────── */
+/* ── 13. ROYAL FLORAL BURST & FLOATING ROSE PETALS ENGINE ─────── */
 function launchConfetti() {
   const canvas = $('#confetti-canvas');
   if (!canvas) return;
@@ -1730,24 +1730,119 @@ function launchConfetti() {
   canvas.width  = window.innerWidth;
   canvas.height = window.innerHeight;
 
-  const colors = ['#b9975b', '#e2cb98', '#173f2b', '#244d37', '#fdf8ef', '#d4af37'];
-  const pieces = [];
-  const count  = 80;
+  // Rich wedding palette: Velvet Red, Deep Rose, Blush Pink, Champagne Rose, Warm Gold & Ivory
+  const petalPalettes = [
+    { fill1: '#9b1b30', fill2: '#e63946', type: 'petal' }, // Velvet Crimson Rose
+    { fill1: '#c44569', fill2: '#f8a5c2', type: 'petal' }, // Romantic Blush Rose
+    { fill1: '#d63031', fill2: '#ff7675', type: 'petal' }, // Classic Scarlet Rose
+    { fill1: '#f8d7da', fill2: '#ffffff', type: 'petal' }, // Champagne / White Jasmine
+    { fill1: '#b9975b', fill2: '#f3e5ab', type: 'sparkle' }, // Shimmering Gold Dust
+    { fill1: '#d4af37', fill2: '#fff2a1', type: 'sparkle' }, // Radiant Gold Sparkle
+    { fill1: '#e17055', fill2: '#fab1a0', type: 'petal' }  // Warm Peach Rose
+  ];
 
-  for (let i = 0; i < count; i++) {
-    pieces.push({
-      x: canvas.width / 2 + (Math.random() - 0.5) * 260,
-      y: canvas.height * 0.45 + (Math.random() - 0.5) * 120,
-      w: Math.random() * 9 + 4,
-      h: Math.random() * 6 + 4,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      vx: (Math.random() - 0.5) * 14,
-      vy: Math.random() * -12 - 4,
-      rot: Math.random() * 360,
-      vrot: (Math.random() - 0.5) * 12,
-      gravity: 0.35,
-      drag: 0.96,
+  const particles = [];
+  const petalCount = 85;
+  const sparkleCount = 45;
+
+  // Origin point near the center of the viewport (or button location)
+  const originX = canvas.width / 2;
+  const originY = canvas.height * 0.45;
+
+  // Helper to draw realistic curved rose petal
+  function drawRosePetal(ctx, w, h, fill1, fill2) {
+    ctx.beginPath();
+    ctx.moveTo(0, -h / 2);
+    // Top right curve of petal
+    ctx.bezierCurveTo(w * 0.55, -h * 0.45, w * 0.65, h * 0.1, 0, h / 2);
+    // Top left curve of petal
+    ctx.bezierCurveTo(-w * 0.65, h * 0.1, -w * 0.55, -h * 0.45, 0, -h / 2);
+    ctx.closePath();
+
+    const grad = ctx.createLinearGradient(0, -h / 2, 0, h / 2);
+    grad.addColorStop(0, fill1);
+    grad.addColorStop(1, fill2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Delicate inner petal highlight / vein
+    ctx.beginPath();
+    ctx.moveTo(0, -h * 0.35);
+    ctx.quadraticCurveTo(w * 0.05, 0, 0, h * 0.35);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Helper to draw 4-pointed golden sparkle
+  function drawSparkle(ctx, size, fill) {
+    ctx.beginPath();
+    for (let i = 0; i < 4; i++) {
+      const angle = (i * Math.PI) / 2;
+      const x1 = Math.cos(angle) * size;
+      const y1 = Math.sin(angle) * size;
+      const x2 = Math.cos(angle + Math.PI / 4) * (size * 0.3);
+      const y2 = Math.sin(angle + Math.PI / 4) * (size * 0.3);
+      if (i === 0) ctx.moveTo(x1, y1);
+      else ctx.lineTo(x1, y1);
+      ctx.lineTo(x2, y2);
+    }
+    ctx.closePath();
+    ctx.fillStyle = fill;
+    ctx.shadowColor = fill;
+    ctx.shadowBlur = 8;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
+  // Generate Petals (Burst + Floating)
+  for (let i = 0; i < petalCount; i++) {
+    const palette = petalPalettes[Math.floor(Math.random() * petalPalettes.length)];
+    const angle = (Math.random() * Math.PI * 2);
+    const speed = Math.random() * 9 + 3;
+
+    particles.push({
+      type: palette.type,
+      fill1: palette.fill1,
+      fill2: palette.fill2,
+      x: originX + (Math.random() - 0.5) * 120,
+      y: originY + (Math.random() - 0.5) * 60,
+      w: Math.random() * 14 + 10,
+      h: Math.random() * 18 + 14,
+      vx: Math.cos(angle) * speed * (Math.random() * 0.7 + 0.6),
+      vy: Math.sin(angle) * speed * 0.8 - Math.random() * 6 - 2,
+      gravity: 0.12 + Math.random() * 0.08,
+      drag: 0.965,
+      rotation: Math.random() * Math.PI * 2,
+      vRot: (Math.random() - 0.5) * 0.06,
+      flutterSpeed: Math.random() * 0.05 + 0.02,
+      flutterPhase: Math.random() * Math.PI * 2,
+      swayFreq: Math.random() * 0.03 + 0.015,
+      swayAmp: Math.random() * 1.8 + 0.8,
       opacity: 1,
+      life: 0
+    });
+  }
+
+  // Generate Golden Sparkles
+  for (let i = 0; i < sparkleCount; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = Math.random() * 12 + 4;
+    particles.push({
+      type: 'sparkle',
+      fill1: '#ffd700',
+      fill2: '#fff',
+      x: originX,
+      y: originY,
+      size: Math.random() * 5 + 3,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - Math.random() * 4,
+      gravity: 0.06,
+      drag: 0.94,
+      rotation: Math.random() * Math.PI,
+      vRot: (Math.random() - 0.5) * 0.1,
+      opacity: 1,
+      life: 0
     });
   }
 
@@ -1757,32 +1852,47 @@ function launchConfetti() {
   function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const elapsed = Date.now() - startTime;
+    let activeParticles = 0;
 
-    let alive = 0;
-    pieces.forEach(p => {
+    particles.forEach(p => {
+      p.life++;
       p.vx *= p.drag;
+      p.vy *= p.drag;
       p.vy += p.gravity;
-      p.x  += p.vx;
-      p.y  += p.vy;
-      p.rot += p.vrot;
 
-      if (elapsed > 2000) {
-        p.opacity -= 0.02;
+      // Add gentle horizontal floral breeze sway
+      const sway = Math.sin(p.life * p.swayFreq + p.flutterPhase) * p.swayAmp;
+      p.x += p.vx + sway;
+      p.y += p.vy;
+
+      p.rotation += p.vRot;
+
+      // Smooth gradual fade out after burst
+      if (elapsed > 2200) {
+        p.opacity -= 0.015;
       }
 
-      if (p.opacity > 0 && p.y < canvas.height + 50) {
-        alive++;
+      if (p.opacity > 0 && p.y < canvas.height + 80) {
+        activeParticles++;
         ctx.save();
         ctx.translate(p.x, p.y);
-        ctx.rotate((p.rot * Math.PI) / 180);
+        ctx.rotate(p.rotation);
         ctx.globalAlpha = Math.max(0, p.opacity);
-        ctx.fillStyle = p.color;
-        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+
+        if (p.type === 'petal') {
+          // 3D tumbling effect with cosine scaling
+          const flutterScale = Math.cos(p.life * p.flutterSpeed + p.flutterPhase);
+          ctx.scale(flutterScale, 1);
+          drawRosePetal(ctx, p.w, p.h, p.fill1, p.fill2);
+        } else {
+          drawSparkle(ctx, p.size || 5, p.fill1);
+        }
+
         ctx.restore();
       }
     });
 
-    if (alive > 0 && elapsed < 4000) {
+    if (activeParticles > 0 && elapsed < 5500) {
       animationFrame = requestAnimationFrame(render);
     } else {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
