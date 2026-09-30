@@ -1519,10 +1519,21 @@
         <div class="sky-bottom-center-wrap">
           <!-- Sky Controls & Floating Golden Call To Action -->
           <div class="sky-viewport-controls">
-            <button id="btn-open-sky-form" class="btn-light-star" aria-label="Open form to light your star">
-              <span class="btn-star-sparkle">✦</span>
-              <span>Light Your Star &rarr;</span>
-            </button>
+            <div class="sky-controls-row">
+              <button id="btn-open-sky-form" class="btn-light-star" aria-label="Open form to light your star">
+                <span class="btn-star-sparkle">✦</span>
+                <span>Light Your Star &rarr;</span>
+              </button>
+
+              <button id="btn-download-sky-frame" class="btn-download-sky-frame" aria-label="Download Sky of Blessings section image for framing" title="Download Image for Framing">
+                <svg class="btn-download-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span>Download Frame</span>
+              </button>
+            </div>
             <p class="sky-hint-caption">Tap any star to read a blessing &bull; Showing latest wishes first</p>
           </div>
         </div>
@@ -1965,6 +1976,7 @@
   <script>
     window.GOOGLE_SHEETS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby9dsm5qLJqMJyjZf_aTPGjd3lL4B_0l4edbqiK1heE_K6FR_hy3MY1MLOeVNM5aDJX/exec";
   </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="js/main.js" defer></script>
 
 </body>

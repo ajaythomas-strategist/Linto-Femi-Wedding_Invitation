@@ -840,6 +840,7 @@ function initSkyOfBlessings() {
   loadSkyBlessingsData();
   setupSkyForm();
   setupSkyPopover();
+  setupSkyDownload();
   initSkyCounterObserver();
 }
 
@@ -1038,8 +1039,8 @@ function combineAndRenderSkyBlessings(remote) {
 
 /**
  * Deterministic Organic Coordinate Generator
- * Positions stars clearly across the vast open celestial dome (Y: 16% to 60%)
- * Avoids header box at the top and couple at the bottom.
+ * Positions stars clearly across the right open celestial sky (Y: 16% to 62%)
+ * Stars are constrained to x: 38–95% to stay clear of the couple on the far left.
  */
 function getDeterministicSkyPosition(seedStr, index, totalCount) {
   let hash = 0;
@@ -1053,27 +1054,29 @@ function getDeterministicSkyPosition(seedStr, index, totalCount) {
   const randX = ((absHash % 1000) / 1000 + (index + 1) * phi) % 1;
   const randY = (((absHash >> 3) % 1000) / 1000 + (index + 1) * phi * 1.618) % 1;
 
-  // 3 Wide Celestial Sky Zones
+  // 3 Celestial Sky Zones — all constrained to RIGHT side (x: 38% to 95%)
+  // keeping left 35% clear for the couple silhouette
   const zone = index % 3;
   let posX = 0;
   let posY = 0;
 
   if (zone === 0) {
-    // Left Celestial Sky
-    posX = 8 + randX * 24;
-    posY = 18 + randY * 38;
+    // Upper-centre open sky
+    posX = 38 + randX * 22;   // 38% – 60%
+    posY = 16 + randY * 36;
   } else if (zone === 1) {
-    // Right Celestial Sky
-    posX = 68 + randX * 24;
-    posY = 16 + randY * 40;
+    // Far right Milky Way sky
+    posX = 68 + randX * 24;   // 68% – 92%
+    posY = 14 + randY * 42;
   } else {
-    // Central Celestial Sky (below title badge)
-    posX = 34 + randX * 32;
-    posY = 36 + randY * 22;
+    // Mid-right open sky
+    posX = 52 + randX * 28;   // 52% – 80%
+    posY = 32 + randY * 26;
   }
 
-  posX = Number(Math.max(8, Math.min(92, posX)).toFixed(1));
-  posY = Number(Math.max(16, Math.min(60, posY)).toFixed(1));
+  // Hard clamp: never go left of 37% (couple zone boundary)
+  posX = Number(Math.max(37, Math.min(94, posX)).toFixed(1));
+  posY = Number(Math.max(14, Math.min(62, posY)).toFixed(1));
 
   return { x: posX, y: posY };
 }
@@ -1128,7 +1131,6 @@ function createSkyStarElement(wish, index, total) {
       <circle cx="12" cy="11" r="2.5" fill="#ffffff"/>
     </svg>
     <div class="star-core-dot"></div>
-    <span class="sky-star-name-badge">${displayName}</span>
   `;
 
   starBtn.addEventListener('click', (e) => {
@@ -1222,6 +1224,84 @@ function setupSkyPopover() {
       if (!popover.contains(e.target) && !e.target.closest('.sky-star')) {
         closeSkyStarPopover();
       }
+    }
+  });
+}
+
+/**
+ * Setup Sky of Blessings Frame Download Handler (for Framing)
+ */
+function setupSkyDownload() {
+  const downloadBtn = $('#btn-download-sky-frame');
+  if (!downloadBtn) return;
+
+  downloadBtn.addEventListener('click', async () => {
+    const skySection = $('#sky-of-blessings');
+    if (!skySection) return;
+
+    const origContent = downloadBtn.innerHTML;
+    downloadBtn.disabled = true;
+    downloadBtn.style.opacity = '0.75';
+    downloadBtn.innerHTML = `
+      <span style="display:inline-block; width:14px; height:14px; border:2px solid currentColor; border-right-color:transparent; border-radius:50%; animation:skySpin 0.75s linear infinite;"></span>
+      <span>Capturing Frame...</span>
+    `;
+
+    showSkyToast('Preparing your high-resolution frame image... ✨');
+
+    try {
+      if (typeof closeSkyStarPopover === 'function') {
+        closeSkyStarPopover();
+      }
+
+      if (typeof html2canvas === 'undefined') {
+        await new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+      }
+
+      const skyControls = skySection.querySelector('.sky-viewport-controls');
+      const origControlsOpacity = skyControls ? skyControls.style.opacity : '';
+      if (skyControls) skyControls.style.opacity = '0';
+
+      const canvas = await html2canvas(skySection, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#04070e',
+        logging: false
+      });
+
+      if (skyControls) skyControls.style.opacity = origControlsOpacity;
+
+      const imageURI = canvas.toDataURL('image/png');
+      const downloadLink = document.createElement('a');
+      downloadLink.download = 'Sky_of_Blessings_Linto_and_Femi.png';
+      downloadLink.href = imageURI;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+
+      showSkyToast('Sky of Blessings frame downloaded! 🖼️✨');
+    } catch (err) {
+      console.error('Error generating frame image:', err);
+
+      const fallbackLink = document.createElement('a');
+      fallbackLink.download = 'Sky_of_Blessings_Backdrop.jpg';
+      fallbackLink.href = 'Images/sky-couple-left.jpg';
+      document.body.appendChild(fallbackLink);
+      fallbackLink.click();
+      document.body.removeChild(fallbackLink);
+
+      showSkyToast('Downloaded backdrop image! Ready for framing. 🖼️✨');
+    } finally {
+      downloadBtn.disabled = false;
+      downloadBtn.style.opacity = '1';
+      downloadBtn.innerHTML = origContent;
     }
   });
 }
