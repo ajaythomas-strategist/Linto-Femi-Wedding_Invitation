@@ -45,7 +45,7 @@
         thumb: 'https://lh3.googleusercontent.com/d/1a_FjmQM-5R_i3R_-0iLb9_PO452Sk2IE=w800',
         full: 'https://lh3.googleusercontent.com/d/1a_FjmQM-5R_i3R_-0iLb9_PO452Sk2IE=w1600',
         download: 'https://drive.google.com/uc?export=download&id=1a_FjmQM-5R_i3R_-0iLb9_PO452Sk2IE',
-        fallback: 'Images/Groom.jpeg',
+        fallback: 'Images/Groom.jpg',
         scriptBadge: 'The Groom ♡'
       },
       {
@@ -54,7 +54,7 @@
         thumb: 'https://lh3.googleusercontent.com/d/1I-ZftraYW6cIUy4hc6Pym1Q1zRrLeXlW=w800',
         full: 'https://lh3.googleusercontent.com/d/1I-ZftraYW6cIUy4hc6Pym1Q1zRrLeXlW=w1600',
         download: 'https://drive.google.com/uc?export=download&id=1I-ZftraYW6cIUy4hc6Pym1Q1zRrLeXlW',
-        fallback: 'Images/Groom.jpeg'
+        fallback: 'Images/Groom.jpg'
       },
       {
         id: '1ws2vrQeg3SV9z1BieaVEimCUPQpFBdF_',
@@ -137,13 +137,33 @@
         if (!res.ok) throw new Error('Drive feed response error');
         const data = await res.json();
         if (data && Array.isArray(data.images) && data.images.length > 0) {
-          galleryImages = data.images.map((item, idx) => ({
-            id: item.id || `drive-${idx}`,
-            name: item.name ? item.name.replace(/\.[^/.]+$/, "") : `Linto & Femi — Memory ${idx + 1}`,
-            thumb: item.thumbnailUrl || `https://lh3.googleusercontent.com/d/${item.id}=w800`,
-            full: item.fullUrl || item.downloadUrl || `https://lh3.googleusercontent.com/d/${item.id}=w1600`,
-            scriptBadge: idx === 0 ? 'Better Together ♡' : null
-          }));
+          const fallbackMap = {};
+          CONFIG.fallbackImages.forEach(fb => {
+            if (fb.id) fallbackMap[fb.id] = fb.fallback;
+          });
+          const defaultFallbacks = [
+            'Images/Groom.jpg',
+            'Images/Moments/Image 3.jpeg',
+            'Images/Hero.jpeg',
+            'Images/Moments/Image 2.jpeg',
+            'Images/Moments/Image 1.jpeg',
+            'Images/Groom.jpg',
+            'Images/Moments/Image 5.jpeg',
+            'Images/Bride.jpeg'
+          ];
+
+          galleryImages = data.images.map((item, idx) => {
+            const rawName = item.name ? item.name.replace(/\.[^/.]+$/, "") : `Linto & Femi — Memory ${idx + 1}`;
+            const matchedFallback = fallbackMap[item.id] || defaultFallbacks[idx % defaultFallbacks.length];
+            return {
+              id: item.id || `drive-${idx}`,
+              name: rawName,
+              thumb: item.thumbnailUrl || `https://lh3.googleusercontent.com/d/${item.id}=w800`,
+              full: item.fullUrl || item.downloadUrl || `https://lh3.googleusercontent.com/d/${item.id}=w1600`,
+              fallback: matchedFallback,
+              scriptBadge: idx === 0 ? 'Better Together ♡' : null
+            };
+          });
         } else {
           galleryImages = [...CONFIG.fallbackImages];
         }
@@ -192,9 +212,15 @@
 
       const sanitizeName = (imgData.name || 'Linto_and_Femi_Photo').replace(/[^a-z0-9_-]/gi, '_');
 
+      const escapeHTML = str => (str || '').replace(/[&<>'"]/g, tag => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+      }[tag] || tag));
+
+      const fallbackAttr = imgData.fallback ? `onerror="this.onerror=null;this.src='${imgData.fallback}';"` : '';
+
       card.innerHTML = `
         <div class="photo-card__img-wrap">
-          <img src="${imgData.thumb}" alt="${imgData.name}" class="photo-card__img" loading="lazy" ${imgData.fallback ? `onerror="if(this.src!=='${imgData.fallback}'){this.src='${imgData.fallback}';}"` : ''} />
+          <img src="${imgData.thumb}" alt="${escapeHTML(imgData.name)}" class="photo-card__img" loading="lazy" referrerpolicy="no-referrer" ${fallbackAttr} />
           ${imgData.scriptBadge ? `<span class="photo-card__script-badge" aria-hidden="true">${imgData.scriptBadge}</span>` : ''}
           <div class="photo-card__overlay">
             <span class="photo-card__label" style="color:#ffffff; font-size:0.75rem; letter-spacing:0.05em;">Linto &amp; Femi</span>
@@ -318,9 +344,15 @@
       };
     }
 
+    const fallbackSrc = item.fallback || 'Images/Hero.jpeg';
     const tempImg = new Image();
+    tempImg.referrerPolicy = 'no-referrer';
     tempImg.onload = () => {
-      lbImg.src = item.full;
+      lbImg.src = tempImg.src;
+      lbImg.style.opacity = '1';
+    };
+    tempImg.onerror = () => {
+      lbImg.src = fallbackSrc;
       lbImg.style.opacity = '1';
     };
     tempImg.src = item.full;

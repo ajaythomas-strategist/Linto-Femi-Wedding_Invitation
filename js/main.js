@@ -1793,6 +1793,28 @@ function initPhotoAlbumsCarousel() {
   function renderCarouselCards(images) {
     track.innerHTML = '';
 
+    const fallbackMap = {
+      '1a_FjmQM-5R_i3R_-0iLb9_PO452Sk2IE': 'Images/Groom.jpg',
+      '1KgDn9CwmOqfldfoFaj1rRHrTyKh8ueyR': 'Images/Moments/Image 3.jpeg',
+      '1Axi4HfMKQ3P_pN807TGyQMqtwxuhNGem': 'Images/Hero.jpeg',
+      '12S15NQN1QMcqf7qxnmPOqw5prFcZD5vy': 'Images/Moments/Image 2.jpeg',
+      '1ws2vrQeg3SV9z1BieaVEimCUPQpFBdF_': 'Images/Moments/Image 1.jpeg',
+      '1I-ZftraYW6cIUy4hc6Pym1Q1zRrLeXlW': 'Images/Groom.jpg',
+      '1tWb6bhiW7um9HYQg4M1TTNHFKH1rpb9J': 'Images/Moments/Image 5.jpeg',
+      '1OM2DAd-ZMhC9m3PPkasQJavYdSHoykJ1': 'Images/Bride.jpeg'
+    };
+
+    const localCarouselFallbacks = [
+      'Images/Groom.jpg',
+      'Images/Moments/Image 3.jpeg',
+      'Images/Hero.jpeg',
+      'Images/Moments/Image 2.jpeg',
+      'Images/Moments/Image 1.jpeg',
+      'Images/Moments/Image 5.jpeg',
+      'Images/Bride.jpeg',
+      'Images/Church.jpg'
+    ];
+
     images.forEach((item, idx) => {
       const a = document.createElement('a');
       a.href = 'album.html';
@@ -1802,10 +1824,11 @@ function initPhotoAlbumsCarousel() {
 
       const title = item.name ? item.name.replace(/\.[^/.]+$/, "") : `Moment ${idx + 1}`;
       const thumb = item.thumbnailUrl || `https://lh3.googleusercontent.com/d/${item.id}=w800`;
+      const fallbackSrc = fallbackMap[item.id] || localCarouselFallbacks[idx % localCarouselFallbacks.length];
 
       a.innerHTML = `
         <div class="album-card__img-box">
-          <img src="${thumb}" alt="${escapeHTML(title)}" loading="lazy" class="album-card__photo" />
+          <img src="${thumb}" alt="${escapeHTML(title)}" loading="lazy" class="album-card__photo" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${fallbackSrc}';" />
         </div>
       `;
       track.appendChild(a);
