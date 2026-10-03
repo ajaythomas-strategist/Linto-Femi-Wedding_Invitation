@@ -868,9 +868,9 @@ function initSkyAmbientCanvas() {
   for (let i = 0; i < starCount; i++) {
     ambientStars.push({
       x: Math.random(),
-      y: Math.random() * 0.68,
-      radius: Math.random() * 1.2 + 0.5,
-      alpha: Math.random() * 0.7 + 0.2,
+      y: Math.random() * 0.34, // Strictly in upper sky (0% – 34%), never in water
+      radius: Math.random() * 1.1 + 0.4,
+      alpha: Math.random() * 0.65 + 0.2,
       speed: Math.random() * 0.02 + 0.008,
       phase: Math.random() * Math.PI * 2,
       color: Math.random() > 0.4 ? '#ffd875' : '#ffffff'
@@ -1039,8 +1039,8 @@ function combineAndRenderSkyBlessings(remote) {
 
 /**
  * Deterministic Organic Coordinate Generator
- * Positions stars clearly across the right open celestial sky (Y: 16% to 62%)
- * Stars are constrained to x: 38–95% to stay clear of the couple on the far left.
+ * Positions stars strictly across the upper open celestial sky (Y: 2% to 20%)
+ * Completely above the horizon, trees, water/lake, couple, and church.
  */
 function getDeterministicSkyPosition(seedStr, index, totalCount) {
   let hash = 0;
@@ -1054,29 +1054,28 @@ function getDeterministicSkyPosition(seedStr, index, totalCount) {
   const randX = ((absHash % 1000) / 1000 + (index + 1) * phi) % 1;
   const randY = (((absHash >> 3) % 1000) / 1000 + (index + 1) * phi * 1.618) % 1;
 
-  // 3 Celestial Sky Zones — all constrained to RIGHT side (x: 38% to 95%)
-  // keeping left 35% clear for the couple silhouette
+  // 3 Celestial Sky Zones in the high night sky
   const zone = index % 3;
   let posX = 0;
   let posY = 0;
 
   if (zone === 0) {
-    // Upper-centre open sky
-    posX = 38 + randX * 22;   // 38% – 60%
-    posY = 16 + randY * 36;
+    // Upper-left celestial sky
+    posX = 12 + randX * 32;   // 12% – 44%
+    posY = 2 + randY * 18;    // 2% – 20%
   } else if (zone === 1) {
-    // Far right Milky Way sky
-    posX = 68 + randX * 24;   // 68% – 92%
-    posY = 14 + randY * 42;
+    // Upper-right Milky Way sky
+    posX = 58 + randX * 28;   // 58% – 86%
+    posY = 3 + randY * 17;    // 3% – 20%
   } else {
-    // Mid-right open sky
-    posX = 52 + randX * 28;   // 52% – 80%
-    posY = 32 + randY * 26;
+    // Central upper night sky
+    posX = 24 + randX * 52;   // 24% – 76%
+    posY = 4 + randY * 16;    // 4% – 20%
   }
 
-  // Hard clamp: never go left of 37% (couple zone boundary)
-  posX = Number(Math.max(37, Math.min(94, posX)).toFixed(1));
-  posY = Number(Math.max(14, Math.min(62, posY)).toFixed(1));
+  // Hard clamp: stay strictly in the highest starry sky (never in tree line or water)
+  posX = Number(Math.max(10, Math.min(90, posX)).toFixed(1));
+  posY = Number(Math.max(2, Math.min(22, posY)).toFixed(1));
 
   return { x: posX, y: posY };
 }
@@ -1118,7 +1117,7 @@ function createSkyStarElement(wish, index, total) {
   const displayName = wish.showName !== false && wish.showName !== 'No' ? wish.name : 'Well-Wisher';
   starBtn.setAttribute('aria-label', `Star blessing from ${displayName}${isLatest ? ' (Latest Wish)' : ''}`);
 
-  const starSize = isLatest ? 30 : (24 + (index % 3) * 3);
+  const starSize = isLatest ? 18 : (12 + (index % 3) * 2);
   const animDelay = ((index * 0.4) % 3).toFixed(2);
 
   starBtn.innerHTML = `
