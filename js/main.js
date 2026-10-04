@@ -1232,6 +1232,8 @@ function setupSkyPopover() {
 
 /**
  * Setup Sky of Blessings Frame Download Handler (for Framing)
+ * Uses high-fidelity Canvas 2D engine to guarantee 100% reliable capture of
+ * the backdrop, glowing celestial stars, title, blessings pill, and CTA button.
  */
 function setupSkyDownload() {
   const downloadBtn = $('#btn-download-sky-frame');
@@ -1256,58 +1258,304 @@ function setupSkyDownload() {
         closeSkyStarPopover();
       }
 
-      if (typeof html2canvas === 'undefined') {
-        await new Promise((resolve, reject) => {
-          const script = document.createElement('script');
-          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-          script.onload = resolve;
-          script.onerror = reject;
-          document.head.appendChild(script);
-        });
+      if (document.fonts && document.fonts.ready) {
+        try { await document.fonts.ready; } catch(e) {}
       }
 
-      // Hide only the download icon button, toast, and popover — keep all other UI visible in frame
-      const downloadIconBtn = skySection.querySelector('#btn-download-sky-frame');
-      if (downloadIconBtn) downloadIconBtn.style.visibility = 'hidden';
+      // 1. Create Ultra-HD Canvas (1920x1072 matching section / photo aspect ratio 1.79)
+      const canvas = document.createElement('canvas');
+      const W = 1920;
+      const H = 1072;
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d');
 
-      const toast = skySection.querySelector('#sky-toast');
-      const origToastDisplay = toast ? toast.style.display : '';
-      if (toast) toast.style.display = 'none';
+      // 2. Load and draw backdrop image
+      const bgImg = new Image();
+      bgImg.crossOrigin = 'anonymous';
+      bgImg.src = 'Images/sky-couple-left.jpg';
+      await new Promise((resolve, reject) => {
+        bgImg.onload = resolve;
+        bgImg.onerror = reject;
+      });
+      ctx.drawImage(bgImg, 0, 0, W, H);
 
-      const popover = skySection.querySelector('#sky-star-popover');
-      const origPopoverDisplay = popover ? popover.style.display : '';
-      if (popover) popover.style.display = 'none';
+      // 3. Collect active stars from DOM or global data
+      const starElements = document.querySelectorAll('#sky-stars-layer .sky-star');
+      let starsData = [];
+      if (starElements.length > 0) {
+        starElements.forEach((el, idx) => {
+          starsData.push({
+            x: parseFloat(el.style.left || '0'),
+            y: parseFloat(el.style.top || '0'),
+            isLatest: idx === 0
+          });
+        });
+      } else if (typeof skyBlessings !== 'undefined' && Array.isArray(skyBlessings) && skyBlessings.length > 0) {
+        skyBlessings.forEach((wish, idx) => {
+          const seedKey = `${wish.id || idx}_${wish.name}_${wish.message}`;
+          const pos = getDeterministicSkyPosition(seedKey, idx, skyBlessings.length);
+          starsData.push({
+            x: pos.x,
+            y: pos.y,
+            isLatest: idx === 0
+          });
+        });
+      } else {
+        // Fallback default coordinates for 4 blessing stars
+        starsData = [
+          { x: 18.5, y: 7.2, isLatest: true },
+          { x: 49.8, y: 12.0, isLatest: false },
+          { x: 60.8, y: 14.6, isLatest: false },
+          { x: 78.4, y: 21.0, isLatest: false }
+        ];
+      }
 
-      // Capture at ultra high resolution (scale 3 for crystal clear print & frame quality)
-      const canvas = await html2canvas(skySection, {
-        scale: 3,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#04070e',
-        logging: false,
-        ignoreElements: (element) => {
-          return (
-            element.id === 'btn-download-sky-frame' ||
-            element.classList.contains('btn-download-sky-frame--topleft') ||
-            element.classList.contains('sky-toast') ||
-            element.classList.contains('sky-star-popover') ||
-            element.getAttribute('data-html2canvas-ignore') === 'true'
-          );
+      // Draw all blessing stars
+      starsData.forEach((st, idx) => {
+        const sx = (st.x / 100) * W;
+        const sy = (st.y / 100) * H;
+        const isLatest = st.isLatest;
+        const outerR = isLatest ? 30 : (20 + (idx % 3) * 3);
+        const innerR = outerR * 0.28;
+
+        // Radiant star aura glow
+        const radGlow = ctx.createRadialGradient(sx, sy, 0, sx, sy, outerR * 2.5);
+        radGlow.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
+        radGlow.addColorStop(0.25, 'rgba(255, 235, 150, 0.7)');
+        radGlow.addColorStop(0.55, 'rgba(255, 216, 117, 0.35)');
+        radGlow.addColorStop(1, 'rgba(255, 216, 117, 0)');
+        ctx.fillStyle = radGlow;
+        ctx.beginPath();
+        ctx.arc(sx, sy, outerR * 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 8-Pointed Celestial Radiant Star
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(sx, sy - outerR);
+        ctx.lineTo(sx + innerR * 0.5, sy - innerR * 0.5);
+        ctx.lineTo(sx + outerR, sy);
+        ctx.lineTo(sx + innerR * 0.5, sy + innerR * 0.5);
+        ctx.lineTo(sx, sy + outerR);
+        ctx.lineTo(sx - innerR * 0.5, sy + innerR * 0.5);
+        ctx.lineTo(sx - outerR, sy);
+        ctx.lineTo(sx - innerR * 0.5, sy - innerR * 0.5);
+        ctx.closePath();
+
+        const starGrad = ctx.createLinearGradient(sx - outerR, sy - outerR, sx + outerR, sy + outerR);
+        starGrad.addColorStop(0, '#ffffff');
+        starGrad.addColorStop(0.35, '#fff2bd');
+        starGrad.addColorStop(0.7, '#ffd875');
+        starGrad.addColorStop(1, '#caa359');
+        ctx.fillStyle = starGrad;
+        ctx.shadowColor = 'rgba(255, 216, 117, 0.9)';
+        ctx.shadowBlur = 12;
+        ctx.fill();
+
+        // Diagonal secondary rays (45 deg)
+        const diagR = outerR * 0.56;
+        const diagInner = innerR * 0.45;
+        ctx.beginPath();
+        for (let i = 0; i < 4; i++) {
+          const ang = (Math.PI / 4) + (i * Math.PI / 2);
+          const tipX = sx + Math.cos(ang) * diagR;
+          const tipY = sy + Math.sin(ang) * diagR;
+          const leftA = ang - Math.PI / 4;
+          const rightA = ang + Math.PI / 4;
+          ctx.moveTo(sx + Math.cos(leftA) * diagInner, sy + Math.sin(leftA) * diagInner);
+          ctx.lineTo(tipX, tipY);
+          ctx.lineTo(sx + Math.cos(rightA) * diagInner, sy + Math.sin(rightA) * diagInner);
         }
+        ctx.fillStyle = '#fff6d4';
+        ctx.fill();
+
+        // Bright white center core
+        ctx.beginPath();
+        ctx.arc(sx, sy, innerR * 0.65, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = '#ffffff';
+        ctx.shadowBlur = 8;
+        ctx.fill();
+        ctx.restore();
       });
 
-      // Restore hidden elements after capture
-      if (downloadIconBtn) downloadIconBtn.style.visibility = '';
-      if (toast) toast.style.display = origToastDisplay;
-      if (popover) popover.style.display = origPopoverDisplay;
+      // 4. Central Floating Header & Title
+      const centerX = W / 2;
 
-      const imageURI = canvas.toDataURL('image/png');
-      const downloadLink = document.createElement('a');
-      downloadLink.download = 'Sky_of_Blessings_Linto_and_Femi_Frame.png';
-      downloadLink.href = imageURI;
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
+      // Top glowing star crest
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = '36px "Playfair Display", Georgia, serif';
+      ctx.fillStyle = '#ffd875';
+      ctx.shadowColor = 'rgba(255, 216, 117, 0.95)';
+      ctx.shadowBlur = 18;
+      ctx.fillText('✦', centerX, 150);
+      ctx.restore();
+
+      // Title: "Sky of Blessings"
+      ctx.save();
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+      ctx.shadowBlur = 16;
+
+      const fontTitleSerif = '58px "Playfair Display", "Cinzel", Georgia, serif';
+      const fontTitleCursive = 'italic 70px "Great Vibes", "Sacramento", cursive, serif';
+
+      ctx.font = fontTitleSerif;
+      const widthSky = ctx.measureText('Sky ').width;
+      ctx.font = fontTitleCursive;
+      const widthOf = ctx.measureText(' of ').width;
+      ctx.font = fontTitleSerif;
+      const widthBlessings = ctx.measureText(' Blessings').width;
+      const totalTitleWidth = widthSky + widthOf + widthBlessings;
+
+      let currentX = centerX - (totalTitleWidth / 2);
+      const titleY = 225;
+
+      ctx.font = fontTitleSerif;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText('Sky', currentX, titleY);
+      currentX += widthSky;
+
+      ctx.font = fontTitleCursive;
+      ctx.fillStyle = '#ffd875';
+      ctx.shadowColor = 'rgba(255, 216, 117, 0.8)';
+      ctx.shadowBlur = 22;
+      ctx.fillText('of', currentX, titleY);
+      currentX += widthOf;
+
+      ctx.font = fontTitleSerif;
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+      ctx.shadowBlur = 16;
+      ctx.fillText('Blessings', currentX, titleY);
+      ctx.restore();
+
+      // Golden Flourish with Center Illuminated Bead
+      ctx.save();
+      const flourishY = 275;
+      ctx.strokeStyle = '#ffd875';
+      ctx.lineWidth = 1.8;
+      ctx.shadowColor = 'rgba(255, 216, 117, 0.85)';
+      ctx.shadowBlur = 10;
+      ctx.lineCap = 'round';
+
+      ctx.beginPath();
+      ctx.moveTo(centerX - 130, flourishY);
+      ctx.bezierCurveTo(centerX - 85, flourishY - 8, centerX - 40, flourishY + 4, centerX - 10, flourishY);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(centerX + 10, flourishY);
+      ctx.bezierCurveTo(centerX + 40, flourishY + 4, centerX + 85, flourishY - 8, centerX + 130, flourishY);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(centerX, flourishY, 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowColor = '#ffd875';
+      ctx.shadowBlur = 12;
+      ctx.fill();
+      ctx.restore();
+
+      // 5. Central Glowing Blessings Count Pill
+      const countEl = document.getElementById('sky-blessings-num');
+      const count = countEl ? (countEl.textContent.trim() || '4') : '4';
+
+      const pillW = 270;
+      const pillH = 58;
+      const pillX = centerX - pillW / 2;
+      const pillY = 320;
+      const pillR = pillH / 2;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.roundRect(pillX, pillY, pillW, pillH, pillR);
+      ctx.fillStyle = 'rgba(10, 16, 28, 0.82)';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+      ctx.shadowBlur = 20;
+      ctx.fill();
+
+      ctx.lineWidth = 1.8;
+      ctx.strokeStyle = 'rgba(255, 216, 117, 0.72)';
+      ctx.stroke();
+
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const pillCenterY = pillY + pillH / 2;
+
+      ctx.font = 'bold 22px "Plus Jakarta Sans", sans-serif';
+      ctx.fillStyle = '#ffd875';
+      ctx.shadowColor = 'rgba(255, 216, 117, 0.7)';
+      ctx.shadowBlur = 12;
+      ctx.fillText(`✦   ${count}   Blessings   ✦`, centerX, pillCenterY);
+      ctx.restore();
+
+      // 6. Bottom Center Area: "✦ Light Your Star →" Button
+      const btnW = 270;
+      const btnH = 58;
+      const btnX = centerX - btnW / 2;
+      const btnY = 880;
+      const btnR = btnH / 2;
+
+      ctx.save();
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.75)';
+      ctx.shadowBlur = 24;
+      ctx.shadowOffsetY = 6;
+
+      const btnGrad = ctx.createLinearGradient(btnX, btnY, btnX + btnW, btnY + btnH);
+      btnGrad.addColorStop(0, '#fff0ba');
+      btnGrad.addColorStop(0.4, '#ffd875');
+      btnGrad.addColorStop(1, '#caa359');
+
+      ctx.beginPath();
+      ctx.roundRect(btnX, btnY, btnW, btnH, btnR);
+      ctx.fillStyle = btnGrad;
+      ctx.fill();
+
+      ctx.shadowColor = 'transparent';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = '600 19px "Plus Jakarta Sans", -apple-system, sans-serif';
+      ctx.fillStyle = '#0b1320';
+      ctx.fillText('✦   Light Your Star  →', centerX, btnY + btnH / 2);
+      ctx.restore();
+
+      // 7. Hint Caption Text below button
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = '400 15px "Plus Jakarta Sans", -apple-system, sans-serif';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+      ctx.shadowBlur = 10;
+      ctx.fillText('Tap any star to read a blessing • Showing latest wishes first', centerX, btnY + btnH + 34);
+      ctx.restore();
+
+      // 8. Download directly via Blob or Data URL
+      if (canvas.toBlob) {
+        canvas.toBlob((blob) => {
+          if (!blob) throw new Error('Canvas blob generation failed');
+          const blobUrl = URL.createObjectURL(blob);
+          const downloadLink = document.createElement('a');
+          downloadLink.download = 'Sky_of_Blessings_Linto_and_Femi_Frame.png';
+          downloadLink.href = blobUrl;
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          document.body.removeChild(downloadLink);
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+        }, 'image/png');
+      } else {
+        const imageURI = canvas.toDataURL('image/png');
+        const downloadLink = document.createElement('a');
+        downloadLink.download = 'Sky_of_Blessings_Linto_and_Femi_Frame.png';
+        downloadLink.href = imageURI;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      }
 
       showSkyToast('Sky of Blessings frame downloaded! 🖼️✨');
     } catch (err) {
