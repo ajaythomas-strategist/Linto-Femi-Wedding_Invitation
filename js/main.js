@@ -1039,8 +1039,9 @@ function combineAndRenderSkyBlessings(remote) {
 
 /**
  * Deterministic Organic Coordinate Generator
- * Positions stars strictly across the upper open celestial sky (Y: 2% to 20%)
- * Completely above the horizon, trees, water/lake, couple, and church.
+ * Positions stars strictly across the upper starry night sky.
+ * The background image (center bottom) has sky in roughly the top 30% of the section.
+ * Y is clamped to 4%–26% to stay well within the starry sky area on all screen sizes.
  */
 function getDeterministicSkyPosition(seedStr, index, totalCount) {
   let hash = 0;
@@ -1054,28 +1055,34 @@ function getDeterministicSkyPosition(seedStr, index, totalCount) {
   const randX = ((absHash % 1000) / 1000 + (index + 1) * phi) % 1;
   const randY = (((absHash >> 3) % 1000) / 1000 + (index + 1) * phi * 1.618) % 1;
 
-  // 3 Celestial Sky Zones in the high night sky
-  const zone = index % 3;
+  // 4 celestial zones spread across the starry sky, all in the upper band
+  const zone = index % 4;
   let posX = 0;
   let posY = 0;
 
   if (zone === 0) {
-    // Upper-left celestial sky
-    posX = 12 + randX * 32;   // 12% – 44%
-    posY = 2 + randY * 18;    // 2% – 20%
+    // Upper-left: open starry night sky above the misty lake
+    posX = 6 + randX * 26;    // 6% – 32%
+    posY = 6 + randY * 16;    // 6% – 22%
   } else if (zone === 1) {
-    // Upper-right Milky Way sky
-    posX = 58 + randX * 28;   // 58% – 86%
-    posY = 3 + randY * 17;    // 3% – 20%
+    // Upper-right: Milky Way band above the church steeple
+    posX = 62 + randX * 26;   // 62% – 88%
+    posY = 4 + randY * 18;    // 4% – 22%
+  } else if (zone === 2) {
+    // Celestial zenith: deep cosmic sky above the title area
+    posX = 18 + randX * 64;   // 18% – 82%
+    posY = 4 + randY * 10;    // 4% – 14%
   } else {
-    // Central upper night sky
-    posX = 24 + randX * 52;   // 24% – 76%
-    posY = 4 + randY * 16;    // 4% – 20%
+    // Mid-upper flanks beside the title
+    posX = (randX > 0.5)
+      ? 8 + (randX - 0.5) * 2 * 20    // 8% – 28%
+      : 68 + randX * 2 * 18;          // 68% – 86%
+    posY = 14 + randY * 12;           // 14% – 26%
   }
 
-  // Hard clamp: stay strictly in the highest starry sky (never in tree line or water)
-  posX = Number(Math.max(10, Math.min(90, posX)).toFixed(1));
-  posY = Number(Math.max(2, Math.min(22, posY)).toFixed(1));
+  // Hard clamp: strictly keep within the upper starry sky band
+  posX = Number(Math.max(5, Math.min(93, posX)).toFixed(1));
+  posY = Number(Math.max(4, Math.min(26, posY)).toFixed(1));
 
   return { x: posX, y: posY };
 }
@@ -1166,7 +1173,7 @@ function openSkyStarPopover(wish, starEl, pos) {
   popover.style.display = 'block';
   popover.setAttribute('aria-hidden', 'false');
 
-  // Calculate popover positioning
+  // Calculate popover positioning within the full panoramic sky section
   const vWidth = viewport.clientWidth;
   const vHeight = viewport.clientHeight;
   const popoverWidth = Math.min(340, vWidth - 32);
@@ -1174,22 +1181,18 @@ function openSkyStarPopover(wish, starEl, pos) {
   let leftPx = (pos.x / 100) * vWidth;
   let topPx = (pos.y / 100) * vHeight;
 
-  // On desktop/tablet: anchor above or below the star
+  // On desktop/tablet: stars are always in the upper 26%, so always anchor popover BELOW the star
   if (vWidth > 600) {
-    if (pos.y > 55) {
-      topPx = topPx - 180;
-    } else {
-      topPx = topPx + 30;
-    }
+    topPx = topPx + 32;
     leftPx = Math.max(popoverWidth / 2 + 16, Math.min(vWidth - popoverWidth / 2 - 16, leftPx));
     popover.style.left = `${leftPx}px`;
     popover.style.top = `${topPx}px`;
     popover.style.transform = 'translateX(-50%)';
   } else {
-    // On mobile: center inside viewport
+    // On mobile: center inside viewport (unchanged)
     popover.style.left = '50%';
     popover.style.top = 'auto';
-    popover.style.bottom = '20px';
+    popover.style.bottom = '110px';
     popover.style.transform = 'translateX(-50%)';
   }
 
@@ -1263,23 +1266,44 @@ function setupSkyDownload() {
         });
       }
 
-      const skyControls = skySection.querySelector('.sky-viewport-controls');
-      const origControlsOpacity = skyControls ? skyControls.style.opacity : '';
-      if (skyControls) skyControls.style.opacity = '0';
+      // Hide only the download icon button, toast, and popover — keep all other UI visible in frame
+      const downloadIconBtn = skySection.querySelector('#btn-download-sky-frame');
+      if (downloadIconBtn) downloadIconBtn.style.visibility = 'hidden';
 
+      const toast = skySection.querySelector('#sky-toast');
+      const origToastDisplay = toast ? toast.style.display : '';
+      if (toast) toast.style.display = 'none';
+
+      const popover = skySection.querySelector('#sky-star-popover');
+      const origPopoverDisplay = popover ? popover.style.display : '';
+      if (popover) popover.style.display = 'none';
+
+      // Capture at ultra high resolution (scale 3 for crystal clear print & frame quality)
       const canvas = await html2canvas(skySection, {
-        scale: 2,
+        scale: 3,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#04070e',
-        logging: false
+        logging: false,
+        ignoreElements: (element) => {
+          return (
+            element.id === 'btn-download-sky-frame' ||
+            element.classList.contains('btn-download-sky-frame--topleft') ||
+            element.classList.contains('sky-toast') ||
+            element.classList.contains('sky-star-popover') ||
+            element.getAttribute('data-html2canvas-ignore') === 'true'
+          );
+        }
       });
 
-      if (skyControls) skyControls.style.opacity = origControlsOpacity;
+      // Restore hidden elements after capture
+      if (downloadIconBtn) downloadIconBtn.style.visibility = '';
+      if (toast) toast.style.display = origToastDisplay;
+      if (popover) popover.style.display = origPopoverDisplay;
 
       const imageURI = canvas.toDataURL('image/png');
       const downloadLink = document.createElement('a');
-      downloadLink.download = 'Sky_of_Blessings_Linto_and_Femi.png';
+      downloadLink.download = 'Sky_of_Blessings_Linto_and_Femi_Frame.png';
       downloadLink.href = imageURI;
       document.body.appendChild(downloadLink);
       downloadLink.click();

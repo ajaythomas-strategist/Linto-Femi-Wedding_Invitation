@@ -5947,11 +5947,6 @@ button {
     margin-bottom: 0.35rem;
   }
 
-  .sky-viewport {
-    width: 100%;
-    height: clamp(170px, 24vh, 230px);
-  }
-
   .sky-bottom-center-wrap {
     width: 100%;
     margin-top: 0.25rem;
@@ -5975,11 +5970,11 @@ button {
     gap: 6px;
   }
 
-  .btn-download-sky-frame {
-    padding: 0.62rem 0.95rem;
-    font-size: 0.82rem;
-    white-space: nowrap;
-    gap: 6px;
+  .btn-download-sky-frame--topleft {
+    top: 14px;
+    right: 14px;
+    width: 38px;
+    height: 38px;
   }
 
   .sky-hint-caption {
@@ -6042,21 +6037,24 @@ button {
 
 /* ── Interactive Viewport Stage (Transparent overlay for open celestial sky) ── */
 .sky-viewport {
-  position: relative;
+  position: absolute;
+  inset: 0;
   width: 100%;
-  max-width: 1100px;
-  height: clamp(180px, 26vh, 260px);
+  height: 100%;
   overflow: visible;
   user-select: none;
-  margin-top: 0.25rem;
+  pointer-events: none;
+  z-index: 5;
 }
 
 /* ── Interactive Stars Layer ── */
 .sky-stars-layer {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
   z-index: 4;
-  pointer-events: auto;
+  pointer-events: none;
 }
 
 .sky-stars-dimmed .sky-star:not(.active) {
@@ -6074,12 +6072,13 @@ button {
   outline: none;
   background: transparent;
   border: none;
-  padding: 10px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 3px;
+  pointer-events: auto;
   transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s ease, filter 0.3s ease;
 }
 
@@ -6402,42 +6401,43 @@ button {
   box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.65), 0 0 38px rgba(255, 216, 117, 0.85);
 }
 
-.btn-download-sky-frame {
+/* ── Download Frame Icon Button – floating top-right corner ── */
+.btn-download-sky-frame--topleft {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 60;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 0.88rem 1.8rem;
-  border-radius: 9999px;
-  background: rgba(12, 20, 36, 0.88);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(8, 14, 28, 0.78);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
+  border: 1.5px solid rgba(255, 216, 117, 0.5);
   color: #ffd875;
-  font-family: var(--font-sans);
-  font-size: 0.94rem;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  border: 1.5px solid rgba(255, 216, 117, 0.55);
   cursor: pointer;
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.5), inset 0 0 12px rgba(255, 216, 117, 0.15);
-  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 4px 18px -2px rgba(0, 0, 0, 0.55), inset 0 0 10px rgba(255, 216, 117, 0.1);
+  transition: background 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease, transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.btn-download-sky-frame:hover {
-  background: rgba(22, 34, 58, 0.96);
-  color: #ffffff;
+.btn-download-sky-frame--topleft:hover {
+  background: rgba(20, 32, 56, 0.96);
   border-color: #ffd875;
-  transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 14px 32px -4px rgba(0, 0, 0, 0.65), 0 0 24px rgba(255, 216, 117, 0.4);
+  box-shadow: 0 8px 28px -4px rgba(0, 0, 0, 0.65), 0 0 20px rgba(255, 216, 117, 0.45);
+  transform: scale(1.1);
 }
 
-.btn-download-sky-frame .btn-download-icon {
+.btn-download-sky-frame--topleft .btn-download-icon {
   stroke: #ffd875;
-  transition: transform 0.3s ease, stroke 0.3s ease;
+  transition: stroke 0.28s ease, transform 0.28s ease;
+  flex-shrink: 0;
 }
 
-.btn-download-sky-frame:hover .btn-download-icon {
-  stroke: #ffffff;
+.btn-download-sky-frame--topleft:hover .btn-download-icon {
+  stroke: #fff;
   transform: translateY(2px);
 }
 
