@@ -1534,28 +1534,19 @@ function setupSkyDownload() {
       ctx.fillText('Tap any star to read a blessing • Showing latest wishes first', centerX, btnY + btnH + 34);
       ctx.restore();
 
-      // 8. Download directly via Blob or Data URL
-      if (canvas.toBlob) {
-        canvas.toBlob((blob) => {
-          if (!blob) throw new Error('Canvas blob generation failed');
-          const blobUrl = URL.createObjectURL(blob);
-          const downloadLink = document.createElement('a');
-          downloadLink.download = 'Sky_of_Blessings_Linto_and_Femi_Frame.png';
-          downloadLink.href = blobUrl;
-          document.body.appendChild(downloadLink);
-          downloadLink.click();
-          document.body.removeChild(downloadLink);
-          setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
-        }, 'image/png');
-      } else {
-        const imageURI = canvas.toDataURL('image/png');
-        const downloadLink = document.createElement('a');
-        downloadLink.download = 'Sky_of_Blessings_Linto_and_Femi_Frame.png';
-        downloadLink.href = imageURI;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-      }
+      // 8. Download directly as a high-quality PNG image file
+      const imageURI = canvas.toDataURL('image/png');
+      const downloadLink = document.createElement('a');
+      downloadLink.style.display = 'none';
+      downloadLink.setAttribute('download', 'Sky_of_Blessings_Linto_and_Femi_Frame.png');
+      downloadLink.href = imageURI;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      setTimeout(() => {
+        if (downloadLink.parentNode) {
+          downloadLink.parentNode.removeChild(downloadLink);
+        }
+      }, 500);
 
       showSkyToast('Sky of Blessings frame downloaded! 🖼️✨');
     } catch (err) {
