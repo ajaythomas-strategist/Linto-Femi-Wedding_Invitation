@@ -27,7 +27,7 @@
         thumb: 'https://lh3.googleusercontent.com/d/1Axi4HfMKQ3P_pN807TGyQMqtwxuhNGem=w800',
         full: 'https://lh3.googleusercontent.com/d/1Axi4HfMKQ3P_pN807TGyQMqtwxuhNGem=w1600',
         download: 'https://drive.google.com/uc?export=download&id=1Axi4HfMKQ3P_pN807TGyQMqtwxuhNGem',
-        fallback: 'Images/Hero.jpeg',
+        fallback: 'Images/Hero.jpg',
         scriptBadge: 'Bound Together ♡'
       },
       {
@@ -36,7 +36,7 @@
         thumb: 'https://lh3.googleusercontent.com/d/1OM2DAd-ZMhC9m3PPkasQJavYdSHoykJ1=w800',
         full: 'https://lh3.googleusercontent.com/d/1OM2DAd-ZMhC9m3PPkasQJavYdSHoykJ1=w1600',
         download: 'https://drive.google.com/uc?export=download&id=1OM2DAd-ZMhC9m3PPkasQJavYdSHoykJ1',
-        fallback: 'Images/Bride.jpeg',
+        fallback: 'Images/Bride.jpg',
         scriptBadge: 'The Bride ♡'
       },
       {
@@ -144,12 +144,12 @@
           const defaultFallbacks = [
             'Images/Groom.jpg',
             'Images/Moments/Image 3.jpeg',
-            'Images/Hero.jpeg',
+            'Images/Hero.jpg',
             'Images/Moments/Image 2.jpeg',
             'Images/Moments/Image 1.jpeg',
             'Images/Groom.jpg',
             'Images/Moments/Image 5.jpeg',
-            'Images/Bride.jpeg'
+            'Images/Bride.jpg'
           ];
 
           galleryImages = data.images.map((item, idx) => {
@@ -344,7 +344,7 @@
       };
     }
 
-    const fallbackSrc = item.fallback || 'Images/Hero.jpeg';
+    const fallbackSrc = item.fallback || 'Images/Hero.jpg';
     const tempImg = new Image();
     tempImg.referrerPolicy = 'no-referrer';
     tempImg.onload = () => {

@@ -4003,14 +4003,26 @@ button {
 /* Story Card */
 .journey__card {
   width: 100%;
-  max-width: 420px;
+  max-width: 450px;
   background: #ffffff;
   border-radius: 20px;
-  padding: clamp(1.25rem, 2.8vw, 1.75rem);
-  border: 1px solid rgba(185, 151, 91, 0.22);
+  padding: clamp(1.35rem, 2.8vw, 1.85rem);
+  border: 1px solid rgba(185, 151, 91, 0.25);
   box-shadow: 0 10px 30px -8px rgba(13, 35, 24, 0.08);
   transition: transform 0.4s var(--ease-elegant), box-shadow 0.4s ease, border-color 0.3s ease;
   position: relative;
+  overflow: hidden;
+}
+
+.journey__card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0.6;
 }
 
 .journey__card:hover {
@@ -4021,17 +4033,24 @@ button {
 
 .journey__card--gold {
   background: linear-gradient(145deg, #ffffff, #fdfbf7);
-  border-color: rgba(202, 163, 89, 0.45);
+  border-color: rgba(202, 163, 89, 0.5);
+  box-shadow: 0 12px 36px -8px rgba(185, 151, 91, 0.2);
+}
+
+.journey__card--gold::before {
+  height: 4px;
+  background: linear-gradient(90deg, var(--gold), #f5dfb8, var(--gold));
+  opacity: 1;
 }
 
 .journey__num {
   font-family: var(--font-serif);
   font-size: 1.8rem;
   font-weight: 600;
-  color: rgba(185, 151, 91, 0.35);
+  color: rgba(185, 151, 91, 0.3);
   position: absolute;
-  top: 1rem;
-  right: 1.25rem;
+  top: 1.1rem;
+  right: 1.35rem;
   line-height: 1;
 }
 
@@ -4043,31 +4062,138 @@ button {
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--gold);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.45rem;
 }
 
 .journey__title {
   font-family: var(--font-serif);
-  font-size: clamp(1.2rem, 2.4vw, 1.5rem);
+  font-size: clamp(1.22rem, 2.4vw, 1.55rem);
   font-weight: 400;
   color: var(--green-deep);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.6rem;
   line-height: 1.25;
 }
 
 .journey__text {
   font-family: var(--font-sans);
-  font-size: clamp(0.82rem, 1.5vw, 0.9rem);
-  color: var(--text-dark);
-  line-height: 1.6;
+  font-size: clamp(0.85rem, 1.5vw, 0.92rem);
+  color: #2c4234;
+  line-height: 1.68;
 }
 
 .journey__cursive-quote {
   font-family: 'Alex Brush', cursive;
-  font-size: 1.2rem;
+  font-size: 1.25rem;
+  color: #997230;
+  margin-top: 0.85rem;
+  line-height: 1.25;
+}
+
+.journey__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--green-mid);
+  background: rgba(197, 160, 89, 0.1);
+  border: 1px solid rgba(197, 160, 89, 0.28);
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  margin-top: 0.9rem;
+}
+
+/* Keepsake Companion Capsule (Facing column on desktop) */
+.journey__keepsake {
+  width: 100%;
+  max-width: 380px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(252, 248, 239, 0.85));
+  border: 1px dashed rgba(197, 160, 89, 0.38);
+  border-radius: 20px;
+  padding: 1.6rem 1.8rem;
+  box-shadow: 0 8px 24px -6px rgba(18, 56, 37, 0.06);
+  position: relative;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  transition: transform 0.4s var(--ease-elegant), box-shadow 0.4s ease, border-color 0.3s ease;
+}
+
+.journey__keepsake:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px -10px rgba(185, 151, 91, 0.18);
+  border-color: rgba(197, 160, 89, 0.6);
+}
+
+.journey__keepsake-seal {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffffff, #f7f1e3);
+  border: 1.5px solid var(--gold);
   color: var(--gold);
-  margin-top: 0.75rem;
-  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.85rem;
+  box-shadow: 0 4px 12px rgba(185, 151, 91, 0.2);
+  transition: transform 0.4s ease;
+}
+
+.journey__keepsake:hover .journey__keepsake-seal {
+  transform: scale(1.1) rotate(6deg);
+}
+
+.journey__keepsake-meta {
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.journey__keepsake-title {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  color: var(--green-deep);
+  font-weight: 500;
+  margin-bottom: 0.4rem;
+  line-height: 1.25;
+}
+
+.journey__keepsake-divider {
+  width: 44px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 0.3rem auto 0.75rem auto;
+}
+
+.journey__keepsake-quote {
+  font-family: 'Alex Brush', cursive;
+  font-size: 1.35rem;
+  line-height: 1.28;
+  color: #8c6827;
+  margin-bottom: 0.75rem;
+}
+
+.journey__keepsake-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--green-mid);
+  background: rgba(122, 146, 126, 0.12);
+  border: 1px solid rgba(122, 146, 126, 0.25);
+  border-radius: 20px;
+  padding: 0.25rem 0.75rem;
 }
 
 @media (max-width: 768px) {
@@ -4097,19 +4223,22 @@ button {
     width: 100% !important;
   }
 
-  .journey__card,
-  .journey__polaroid-wrap {
+  .journey__card {
     max-width: 100% !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
   }
 
-  .journey__item--right .journey__col--left {
-    order: 2;
+  /* Hide companion keepsake on mobile to avoid redundant card stacking */
+  .journey__keepsake {
+    display: none !important;
   }
 
-  .journey__item--right .journey__col--right {
-    order: 1;
+  .journey__item--right .journey__col--left,
+  .journey__item--right .journey__col--right,
+  .journey__item--left .journey__col--left,
+  .journey__item--left .journey__col--right {
+    order: unset !important;
   }
 }
 
