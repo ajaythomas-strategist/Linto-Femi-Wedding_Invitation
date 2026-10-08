@@ -1189,11 +1189,11 @@ function openSkyStarPopover(wish, starEl, pos) {
     popover.style.top = `${topPx}px`;
     popover.style.transform = 'translateX(-50%)';
   } else {
-    // On mobile: center inside viewport (unchanged)
+    // On mobile: center cleanly inside the sky viewport
     popover.style.left = '50%';
-    popover.style.top = 'auto';
-    popover.style.bottom = '110px';
-    popover.style.transform = 'translateX(-50%)';
+    popover.style.top = '50%';
+    popover.style.bottom = 'auto';
+    popover.style.transform = 'translate(-50%, -50%)';
   }
 
   activeStarPopover = starEl;
