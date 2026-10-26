@@ -1,205 +1,411 @@
 /**
  * ============================================================
  * CELEBRATION PHOTO ALBUM CONTROLLER (album.js)
- * Dynamic Google Drive Feed, Natural Masonry, Lightbox & Sharing
+ * Multi-Function Dynamic Albums & Google Drive Integration
  * ============================================================
  */
 
 (() => {
   'use strict';
 
-  // Configuration — Strictly Google Drive Folder (1jchGI4-6ybS0-vmh8HYU9cSWWV3BpJvU)
-  const CONFIG = {
-    folderId: '1jchGI4-6ybS0-vmh8HYU9cSWWV3BpJvU',
-    get driveFeedUrl() {
-      if (window.GOOGLE_SHEETS_SCRIPT_URL) {
-        return window.GOOGLE_SHEETS_SCRIPT_URL.includes('?') 
-          ? `${window.GOOGLE_SHEETS_SCRIPT_URL}&action=album`
-          : `${window.GOOGLE_SHEETS_SCRIPT_URL}?action=album`;
-      }
-      return '';
+  // 1. Google Drive Function Folders & Album Metadata Registry
+  const ALBUMS = {
+    'all': {
+      id: 'all',
+      folderId: '1jchGI4-6ybS0-vmh8HYU9cSWWV3BpJvU', // Parent Images folder
+      name: 'All Celebrations',
+      title: 'Celebration Photo Album',
+      eyebrow: 'OUR CELEBRATION ALBUM',
+      date: 'NOVEMBER 2026',
+      venue: 'CHITTISSERY, THRISSUR',
+      tagline: '“Two hearts, one journey, a lifetime of love.”',
+      quote: 'Two Hearts One Journey',
+      accentImg: 'Images/Church.jpg',
+      emptyNote: 'Celebration photographs from all wedding functions will be displayed here as they are uploaded.',
+      driveUrl: 'https://drive.google.com/drive/folders/1jchGI4-6ybS0-vmh8HYU9cSWWV3BpJvU?usp=sharing'
     },
-    // Photos strictly sourced from user's Google Drive folder: 1jchGI4-6ybS0-vmh8HYU9cSWWV3BpJvU
-    fallbackImages: [
-      {
-        id: '1Axi4HfMKQ3P_pN807TGyQMqtwxuhNGem',
-        name: 'Linto & Femi — Together in Love',
-        thumb: 'https://lh3.googleusercontent.com/d/1Axi4HfMKQ3P_pN807TGyQMqtwxuhNGem=w800',
-        full: 'https://lh3.googleusercontent.com/d/1Axi4HfMKQ3P_pN807TGyQMqtwxuhNGem=w1600',
-        download: 'https://drive.google.com/uc?export=download&id=1Axi4HfMKQ3P_pN807TGyQMqtwxuhNGem',
-        fallback: 'Images/Hero.jpg',
-        scriptBadge: 'Bound Together ♡'
-      },
-      {
-        id: '1OM2DAd-ZMhC9m3PPkasQJavYdSHoykJ1',
-        name: 'Femi — The Radiant Bride',
-        thumb: 'https://lh3.googleusercontent.com/d/1OM2DAd-ZMhC9m3PPkasQJavYdSHoykJ1=w800',
-        full: 'https://lh3.googleusercontent.com/d/1OM2DAd-ZMhC9m3PPkasQJavYdSHoykJ1=w1600',
-        download: 'https://drive.google.com/uc?export=download&id=1OM2DAd-ZMhC9m3PPkasQJavYdSHoykJ1',
-        fallback: 'Images/Bride.jpg',
-        scriptBadge: 'The Bride ♡'
-      },
-      {
-        id: '1a_FjmQM-5R_i3R_-0iLb9_PO452Sk2IE',
-        name: 'Linto — The Joyful Groom',
-        thumb: 'https://lh3.googleusercontent.com/d/1a_FjmQM-5R_i3R_-0iLb9_PO452Sk2IE=w800',
-        full: 'https://lh3.googleusercontent.com/d/1a_FjmQM-5R_i3R_-0iLb9_PO452Sk2IE=w1600',
-        download: 'https://drive.google.com/uc?export=download&id=1a_FjmQM-5R_i3R_-0iLb9_PO452Sk2IE',
-        fallback: 'Images/Groom.jpg',
-        scriptBadge: 'The Groom ♡'
-      },
-      {
-        id: '1I-ZftraYW6cIUy4hc6Pym1Q1zRrLeXlW',
-        name: 'Linto — The Blessed Groom',
-        thumb: 'https://lh3.googleusercontent.com/d/1I-ZftraYW6cIUy4hc6Pym1Q1zRrLeXlW=w800',
-        full: 'https://lh3.googleusercontent.com/d/1I-ZftraYW6cIUy4hc6Pym1Q1zRrLeXlW=w1600',
-        download: 'https://drive.google.com/uc?export=download&id=1I-ZftraYW6cIUy4hc6Pym1Q1zRrLeXlW',
-        fallback: 'Images/Groom.jpg'
-      },
-      {
-        id: '1ws2vrQeg3SV9z1BieaVEimCUPQpFBdF_',
-        name: 'Linto & Femi — Sacred Moments',
-        thumb: 'https://lh3.googleusercontent.com/d/1ws2vrQeg3SV9z1BieaVEimCUPQpFBdF_=w800',
-        full: 'https://lh3.googleusercontent.com/d/1ws2vrQeg3SV9z1BieaVEimCUPQpFBdF_=w1600',
-        download: 'https://drive.google.com/uc?export=download&id=1ws2vrQeg3SV9z1BieaVEimCUPQpFBdF_',
-        fallback: 'Images/Moments/Image 1.jpeg'
-      },
-      {
-        id: '12S15NQN1QMcqf7qxnmPOqw5prFcZD5vy',
-        name: 'Linto & Femi — Smiles & Warmth',
-        thumb: 'https://lh3.googleusercontent.com/d/12S15NQN1QMcqf7qxnmPOqw5prFcZD5vy=w800',
-        full: 'https://lh3.googleusercontent.com/d/12S15NQN1QMcqf7qxnmPOqw5prFcZD5vy=w1600',
-        download: 'https://drive.google.com/uc?export=download&id=12S15NQN1QMcqf7qxnmPOqw5prFcZD5vy',
-        fallback: 'Images/Moments/Image 2.jpeg'
-      },
-      {
-        id: '1KgDn9CwmOqfldfoFaj1rRHrTyKh8ueyR',
-        name: 'Linto & Femi — Romantic Journey',
-        thumb: 'https://lh3.googleusercontent.com/d/1KgDn9CwmOqfldfoFaj1rRHrTyKh8ueyR=w800',
-        full: 'https://lh3.googleusercontent.com/d/1KgDn9CwmOqfldfoFaj1rRHrTyKh8ueyR=w1600',
-        download: 'https://drive.google.com/uc?export=download&id=1KgDn9CwmOqfldfoFaj1rRHrTyKh8ueyR',
-        fallback: 'Images/Moments/Image 3.jpeg'
-      },
-      {
-        id: '1tWb6bhiW7um9HYQg4M1TTNHFKH1rpb9J',
-        name: 'Linto & Femi — Cherished Joy',
-        thumb: 'https://lh3.googleusercontent.com/d/1tWb6bhiW7um9HYQg4M1TTNHFKH1rpb9J=w800',
-        full: 'https://lh3.googleusercontent.com/d/1tWb6bhiW7um9HYQg4M1TTNHFKH1rpb9J=w1600',
-        download: 'https://drive.google.com/uc?export=download&id=1tWb6bhiW7um9HYQg4M1TTNHFKH1rpb9J',
-        fallback: 'Images/Moments/Image 5.jpeg'
-      }
-    ]
+    'journey_before': {
+      id: 'journey_before',
+      folderId: '13ziMMYWdSc2l0HWxbnFHi8BLvnLsi6cg', // Subfolder: Journey Before
+      name: 'Journey Before',
+      title: 'Journey Before',
+      eyebrow: 'HOW IT ALL BEGAN',
+      date: 'MEMORIES LEADING TO FOREVER',
+      venue: 'CHERISHED MOMENTS & TRAVEL',
+      tagline: '“Every step brought us closer to each other.”',
+      quote: 'Every Step Guided By Love',
+      accentImg: 'Images/Moments/Image 2.jpeg',
+      emptyNote: 'Pre-wedding memories, candid travel captures, and our beginnings will appear here as soon as they are added to our celebration folder.',
+      driveUrl: 'https://drive.google.com/drive/folders/13ziMMYWdSc2l0HWxbnFHi8BLvnLsi6cg?usp=sharing'
+    },
+    'save_the_date': {
+      id: 'save_the_date',
+      folderId: '1mKY8tjwwi21QWsKi_I5Oef0RyVxJiFpq', // Subfolder: Save the Date
+      name: 'Save the Date',
+      title: 'Save the Date',
+      eyebrow: 'THE OFFICIAL ANNOUNCEMENT',
+      date: 'SATURDAY, 7 NOVEMBER 2026',
+      venue: 'SPECIAL ANNOUNCEMENT',
+      tagline: '“Two souls, one date marked by grace and love.”',
+      quote: 'Counting Down The Days',
+      accentImg: 'Images/Moments/Image 3.jpeg',
+      emptyNote: 'Save the Date portraits, announcement teasers, and countdown captures will be uploaded here.',
+      driveUrl: 'https://drive.google.com/drive/folders/1mKY8tjwwi21QWsKi_I5Oef0RyVxJiFpq?usp=sharing'
+    },
+    'betrothal': {
+      id: 'betrothal',
+      folderId: '1OHIJhWuivdXyHieO6rAPzlOeQDA1vC3d', // Subfolder: Betrothal
+      name: 'The Betrothal',
+      title: 'The Betrothal',
+      eyebrow: 'SACRED PROMISE & FAMILY BLESSINGS',
+      date: 'SACRED PROMISE',
+      venue: 'FAMILY GATHERING & BLESSINGS',
+      tagline: '“Promises made before God and family.”',
+      quote: 'Bound In Holy Promise',
+      accentImg: 'Images/Hero.jpg',
+      emptyNote: 'Photographs from our traditional Betrothal and family blessings will be uploaded here soon.',
+      driveUrl: 'https://drive.google.com/drive/folders/1OHIJhWuivdXyHieO6rAPzlOeQDA1vC3d?usp=sharing'
+    },
+    'engagement': {
+      id: 'engagement',
+      folderId: '19kTGahQbbYUhgXjpgMC8Aqi24Qp508or', // Subfolder: Engagement
+      name: 'Engagement Ceremony',
+      title: 'Engagement Ceremony',
+      eyebrow: 'THE RING EXCHANGE',
+      date: 'ENGAGEMENT CELEBRATION',
+      venue: 'PARISH & FAMILY CELEBRATION',
+      tagline: '“With this ring, a promise of a lifetime begins.”',
+      quote: 'United In Faith & Love',
+      accentImg: 'Images/Moments/Image 5.jpeg',
+      emptyNote: 'Memories from our Engagement ceremony and ring exchange will appear here once uploaded.',
+      driveUrl: 'https://drive.google.com/drive/folders/19kTGahQbbYUhgXjpgMC8Aqi24Qp508or?usp=sharing'
+    },
+    'wedding': {
+      id: 'wedding',
+      folderId: '1yoMxW2mhMZ3DRVMPbzwR1wG_FloOF_ml', // Subfolder: Wedding
+      name: 'Holy Matrimony',
+      title: 'Holy Matrimony',
+      eyebrow: 'THE SACRED CEREMONY & RECEPTION',
+      date: 'SATURDAY, 7 NOVEMBER 2026',
+      venue: 'ST. MARY\'S CHURCH & JUBILEE MEMORIAL HALL',
+      tagline: '“Sacred moments, cherished forever.”',
+      quote: 'Before God We Say I Do',
+      accentImg: 'Images/Church.jpg',
+      emptyNote: 'Wedding day ceremony, blessing of the rings, and reception celebration photographs will be uploaded here.',
+      driveUrl: 'https://drive.google.com/drive/folders/1yoMxW2mhMZ3DRVMPbzwR1wG_FloOF_ml?usp=sharing'
+    }
   };
 
+  // High-fidelity fallback dataset for root/all celebrations
+  const ROOT_FALLBACK_IMAGES = [
+    {
+      id: '1Axi4HfMKQ3P_pN807TGyQMqtwxuhNGem',
+      name: 'Linto & Femi — Together in Love',
+      thumb: 'https://lh3.googleusercontent.com/d/1Axi4HfMKQ3P_pN807TGyQMqtwxuhNGem=w800',
+      full: 'https://lh3.googleusercontent.com/d/1Axi4HfMKQ3P_pN807TGyQMqtwxuhNGem=w1600',
+      download: 'https://drive.google.com/uc?export=download&id=1Axi4HfMKQ3P_pN807TGyQMqtwxuhNGem',
+      fallback: 'Images/Hero.jpg',
+      scriptBadge: 'Bound Together ♡'
+    },
+    {
+      id: '1OM2DAd-ZMhC9m3PPkasQJavYdSHoykJ1',
+      name: 'Femi — The Radiant Bride',
+      thumb: 'https://lh3.googleusercontent.com/d/1OM2DAd-ZMhC9m3PPkasQJavYdSHoykJ1=w800',
+      full: 'https://lh3.googleusercontent.com/d/1OM2DAd-ZMhC9m3PPkasQJavYdSHoykJ1=w1600',
+      download: 'https://drive.google.com/uc?export=download&id=1OM2DAd-ZMhC9m3PPkasQJavYdSHoykJ1',
+      fallback: 'Images/Bride.jpg',
+      scriptBadge: 'The Bride ♡'
+    },
+    {
+      id: '1a_FjmQM-5R_i3R_-0iLb9_PO452Sk2IE',
+      name: 'Linto — The Joyful Groom',
+      thumb: 'https://lh3.googleusercontent.com/d/1a_FjmQM-5R_i3R_-0iLb9_PO452Sk2IE=w800',
+      full: 'https://lh3.googleusercontent.com/d/1a_FjmQM-5R_i3R_-0iLb9_PO452Sk2IE=w1600',
+      download: 'https://drive.google.com/uc?export=download&id=1a_FjmQM-5R_i3R_-0iLb9_PO452Sk2IE',
+      fallback: 'Images/Groom.jpg',
+      scriptBadge: 'The Groom ♡'
+    },
+    {
+      id: '1I-ZftraYW6cIUy4hc6Pym1Q1zRrLeXlW',
+      name: 'Linto — The Blessed Groom',
+      thumb: 'https://lh3.googleusercontent.com/d/1I-ZftraYW6cIUy4hc6Pym1Q1zRrLeXlW=w800',
+      full: 'https://lh3.googleusercontent.com/d/1I-ZftraYW6cIUy4hc6Pym1Q1zRrLeXlW=w1600',
+      download: 'https://drive.google.com/uc?export=download&id=1I-ZftraYW6cIUy4hc6Pym1Q1zRrLeXlW',
+      fallback: 'Images/Groom.jpg'
+    },
+    {
+      id: '1ws2vrQeg3SV9z1BieaVEimCUPQpFBdF_',
+      name: 'Linto & Femi — Sacred Moments',
+      thumb: 'https://lh3.googleusercontent.com/d/1ws2vrQeg3SV9z1BieaVEimCUPQpFBdF_=w800',
+      full: 'https://lh3.googleusercontent.com/d/1ws2vrQeg3SV9z1BieaVEimCUPQpFBdF_=w1600',
+      download: 'https://drive.google.com/uc?export=download&id=1ws2vrQeg3SV9z1BieaVEimCUPQpFBdF_',
+      fallback: 'Images/Moments/Image 1.jpeg'
+    },
+    {
+      id: '12S15NQN1QMcqf7qxnmPOqw5prFcZD5vy',
+      name: 'Linto & Femi — Smiles & Warmth',
+      thumb: 'https://lh3.googleusercontent.com/d/12S15NQN1QMcqf7qxnmPOqw5prFcZD5vy=w800',
+      full: 'https://lh3.googleusercontent.com/d/12S15NQN1QMcqf7qxnmPOqw5prFcZD5vy=w1600',
+      download: 'https://drive.google.com/uc?export=download&id=12S15NQN1QMcqf7qxnmPOqw5prFcZD5vy',
+      fallback: 'Images/Moments/Image 2.jpeg'
+    },
+    {
+      id: '1KgDn9CwmOqfldfoFaj1rRHrTyKh8ueyR',
+      name: 'Linto & Femi — Romantic Journey',
+      thumb: 'https://lh3.googleusercontent.com/d/1KgDn9CwmOqfldfoFaj1rRHrTyKh8ueyR=w800',
+      full: 'https://lh3.googleusercontent.com/d/1KgDn9CwmOqfldfoFaj1rRHrTyKh8ueyR=w1600',
+      download: 'https://drive.google.com/uc?export=download&id=1KgDn9CwmOqfldfoFaj1rRHrTyKh8ueyR',
+      fallback: 'Images/Moments/Image 3.jpeg'
+    },
+    {
+      id: '1tWb6bhiW7um9HYQg4M1TTNHFKH1rpb9J',
+      name: 'Linto & Femi — Cherished Joy',
+      thumb: 'https://lh3.googleusercontent.com/d/1tWb6bhiW7um9HYQg4M1TTNHFKH1rpb9J=w800',
+      full: 'https://lh3.googleusercontent.com/d/1tWb6bhiW7um9HYQg4M1TTNHFKH1rpb9J=w1600',
+      download: 'https://drive.google.com/uc?export=download&id=1tWb6bhiW7um9HYQg4M1TTNHFKH1rpb9J',
+      fallback: 'Images/Moments/Image 5.jpeg'
+    }
+  ];
+
   // State
+  let currentAlbumKey = 'all';
   let galleryImages = [];
   let currentIndex = 0;
   let touchStartX = 0;
   let touchEndX = 0;
+  const albumCache = {}; // Cache fetched photos by folderId/albumKey
 
   // DOM Elements
-  const galleryEl    = document.getElementById('album-gallery');
-  const skeletonEl   = document.getElementById('gallery-skeleton');
-  const emptyEl      = document.getElementById('gallery-empty');
-  const errorEl      = document.getElementById('gallery-error');
-  const countEl      = document.getElementById('memories-count');
-  const retryBtn     = document.getElementById('btn-retry-gallery');
+  const galleryEl      = document.getElementById('album-gallery');
+  const skeletonEl     = document.getElementById('gallery-skeleton');
+  const emptyEl        = document.getElementById('gallery-empty');
+  const emptyTitleEl   = document.getElementById('empty-title');
+  const emptyDescEl    = document.getElementById('empty-desc');
+  const emptyDriveBtn  = document.getElementById('empty-drive-btn');
+  const emptyBrowseAll = document.getElementById('empty-browse-all');
+  const errorEl        = document.getElementById('gallery-error');
+  const countEl        = document.getElementById('memories-count');
+  const retryBtn       = document.getElementById('btn-retry-gallery');
   const downloadAllBtn = document.getElementById('btn-download-all');
-  const shareBtn     = document.getElementById('btn-share-album');
-  const toastEl      = document.getElementById('album-toast');
-  const viewGridBtn  = document.getElementById('view-grid-btn');
-  const viewDenseBtn = document.getElementById('view-dense-btn');
+  const driveFolderBtn = document.getElementById('btn-drive-folder');
+  const shareBtn       = document.getElementById('btn-share-album');
+  const toastEl        = document.getElementById('album-toast');
+  const viewGridBtn    = document.getElementById('view-grid-btn');
+  const viewDenseBtn   = document.getElementById('view-dense-btn');
+
+  // Header Elements
+  const headerEyebrow  = document.getElementById('album-eyebrow');
+  const headerTitle    = document.getElementById('album-title');
+  const headerDate     = document.getElementById('album-date');
+  const headerVenue    = document.getElementById('album-venue');
+  const headerTagline  = document.getElementById('album-tagline');
+  const headerQuoteLeft= document.getElementById('album-quote-left');
+  const headerAccentImg= document.getElementById('church-accent-img');
+  const toolbarVenue   = document.getElementById('toolbar-venue');
+  const toolbarDate    = document.getElementById('toolbar-date');
+  const tabButtons     = document.querySelectorAll('.album-tab-btn');
 
   // Lightbox Elements
-  const lightboxEl   = document.getElementById('album-lightbox');
-  const lbImg        = document.getElementById('lightbox-active-img');
-  const lbCounter    = document.getElementById('lightbox-counter');
-  const lbCaption    = document.getElementById('lightbox-caption-text');
-  const lbCloseBtn   = document.getElementById('lightbox-close-btn');
-  const lbPrevBtn    = document.getElementById('lightbox-prev-btn');
-  const lbNextBtn    = document.getElementById('lightbox-next-btn');
-  const lbDownloadBtn= document.getElementById('lightbox-download-btn');
-  const lbOverlay    = document.getElementById('lightbox-overlay');
+  const lightboxEl     = document.getElementById('album-lightbox');
+  const lbImg          = document.getElementById('lightbox-active-img');
+  const lbCounter      = document.getElementById('lightbox-counter');
+  const lbCaption      = document.getElementById('lightbox-caption-text');
+  const lbCloseBtn     = document.getElementById('lightbox-close-btn');
+  const lbPrevBtn      = document.getElementById('lightbox-prev-btn');
+  const lbNextBtn      = document.getElementById('lightbox-next-btn');
+  const lbDownloadBtn  = document.getElementById('lightbox-download-btn');
+  const lbOverlay      = document.getElementById('lightbox-overlay');
 
   /**
-   * Fetch photos from Google Drive Feed or Fallback
+   * Determine album from URL query parameters (?album=... or ?folderId=...)
    */
-  async function loadPhotographs() {
+  function getRequestedAlbumKey() {
+    const params = new URLSearchParams(window.location.search);
+    const albumParam = params.get('album');
+    const folderParam = params.get('folderId');
+
+    if (albumParam && ALBUMS[albumParam]) {
+      return albumParam;
+    }
+
+    if (folderParam) {
+      for (const [key, alb] of Object.entries(ALBUMS)) {
+        if (alb.folderId === folderParam) return key;
+      }
+    }
+
+    return 'all';
+  }
+
+  /**
+   * Update Document Title and Header details according to active album
+   */
+  function updateHeaderDetails(album) {
+    document.title = `${album.name} | Celebration Photo Album — Linto & Femi`;
+
+    if (headerEyebrow)   headerEyebrow.textContent = album.eyebrow;
+    if (headerTitle)     headerTitle.textContent = album.name;
+    if (headerDate)      headerDate.textContent = album.date;
+    if (headerVenue)     headerVenue.textContent = album.venue;
+    if (headerTagline)   headerTagline.textContent = album.tagline;
+
+    if (headerQuoteLeft) {
+      headerQuoteLeft.innerHTML = `<span>${album.quote}</span> <span class="script-heart">♡</span>`;
+    }
+
+    if (toolbarVenue)    toolbarVenue.textContent = album.name;
+    if (toolbarDate)     toolbarDate.textContent = album.date.split('|')[0].trim();
+
+    if (driveFolderBtn) {
+      driveFolderBtn.href = album.driveUrl;
+      driveFolderBtn.setAttribute('title', `Open ${album.name} folder in Google Drive`);
+    }
+
+    if (emptyTitleEl) {
+      emptyTitleEl.textContent = `Memories from our ${album.name}`;
+    }
+
+    if (emptyDescEl) {
+      emptyDescEl.textContent = album.emptyNote;
+    }
+
+    if (emptyDriveBtn) {
+      emptyDriveBtn.href = album.driveUrl;
+    }
+
+    if (headerAccentImg && album.accentImg) {
+      headerAccentImg.src = album.accentImg;
+    }
+
+    // Update active tab button UI
+    tabButtons.forEach(btn => {
+      const isCurrent = btn.getAttribute('data-album') === album.id;
+      btn.classList.toggle('active', isCurrent);
+      btn.setAttribute('aria-selected', isCurrent ? 'true' : 'false');
+    });
+  }
+
+  /**
+   * Select and display an album
+   */
+  function switchAlbum(albumKey, updateHistory = true) {
+    if (!ALBUMS[albumKey]) albumKey = 'all';
+    currentAlbumKey = albumKey;
+    const album = ALBUMS[albumKey];
+
+    // Update URL query parameter seamlessly
+    if (updateHistory) {
+      const newUrl = albumKey === 'all' 
+        ? window.location.pathname 
+        : `${window.location.pathname}?album=${encodeURIComponent(albumKey)}`;
+      window.history.replaceState({ album: albumKey }, '', newUrl);
+    }
+
+    updateHeaderDetails(album);
+    loadPhotographsForAlbum(album);
+  }
+
+  /**
+   * Fetch photos for the selected album
+   */
+  async function loadPhotographsForAlbum(album) {
     skeletonEl.style.display = 'block';
     emptyEl.style.display    = 'none';
     errorEl.style.display    = 'none';
     galleryEl.innerHTML      = '';
+    if (countEl) countEl.textContent = 'Loading...';
+
+    // 1. Check in-memory cache
+    if (albumCache[album.id]) {
+      skeletonEl.style.display = 'none';
+      renderLoadedImages(albumCache[album.id], album);
+      return;
+    }
+
+    const scriptUrl = window.GOOGLE_SHEETS_SCRIPT_URL;
 
     try {
-      const feedUrl = CONFIG.driveFeedUrl;
-      if (feedUrl) {
+      if (scriptUrl) {
+        const feedUrl = `${scriptUrl}?action=album&folderId=${encodeURIComponent(album.folderId)}&album=${encodeURIComponent(album.id)}`;
         const res = await fetch(feedUrl);
-        if (!res.ok) throw new Error('Drive feed response error');
+        if (!res.ok) throw new Error(`Drive API status ${res.status}`);
         const data = await res.json();
-        if (data && Array.isArray(data.images) && data.images.length > 0) {
-          const fallbackMap = {};
-          CONFIG.fallbackImages.forEach(fb => {
-            if (fb.id) fallbackMap[fb.id] = fb.fallback;
-          });
-          const defaultFallbacks = [
-            'Images/Groom.jpg',
-            'Images/Moments/Image 3.jpeg',
-            'Images/Hero.jpg',
-            'Images/Moments/Image 2.jpeg',
-            'Images/Moments/Image 1.jpeg',
-            'Images/Groom.jpg',
-            'Images/Moments/Image 5.jpeg',
-            'Images/Bride.jpg'
-          ];
 
-          galleryImages = data.images.map((item, idx) => {
-            const rawName = item.name ? item.name.replace(/\.[^/.]+$/, "") : `Linto & Femi — Memory ${idx + 1}`;
-            const matchedFallback = fallbackMap[item.id] || defaultFallbacks[idx % defaultFallbacks.length];
-            return {
-              id: item.id || `drive-${idx}`,
-              name: rawName,
-              thumb: item.thumbnailUrl || `https://lh3.googleusercontent.com/d/${item.id}=w800`,
-              full: item.fullUrl || item.downloadUrl || `https://lh3.googleusercontent.com/d/${item.id}=w1600`,
-              fallback: matchedFallback,
-              scriptBadge: idx === 0 ? 'Better Together ♡' : null
-            };
-          });
+        if (data && data.status === 'success' && Array.isArray(data.images)) {
+          // Verify if backend returned photos from the requested folder
+          const isMatchingFolder = !data.folderId || data.folderId === album.folderId;
+
+          // If the backend returned items:
+          if (data.images.length > 0) {
+            // Check if older Apps Script returned root images for a subfolder
+            if (album.id !== 'all' && data.folderId && data.folderId !== album.folderId) {
+              // Deployed script has not yet been updated with folderId parameterization;
+              // Treat empty subfolder correctly so mixed photos aren't shown.
+              albumCache[album.id] = [];
+            } else {
+              albumCache[album.id] = data.images.map((item, idx) => {
+                const rawName = item.name ? item.name.replace(/\.[^/.]+$/, "") : `${album.name} — Memory ${idx + 1}`;
+                return {
+                  id: item.id || `drive-${idx}`,
+                  name: rawName,
+                  thumb: item.thumbnailUrl || `https://lh3.googleusercontent.com/d/${item.id}=w800`,
+                  full: item.fullUrl || item.downloadUrl || `https://lh3.googleusercontent.com/d/${item.id}=w1600`,
+                  fallback: 'Images/Hero.jpg',
+                  scriptBadge: idx === 0 ? 'Cherished Moment ♡' : null
+                };
+              });
+            }
+          } else {
+            albumCache[album.id] = [];
+          }
         } else {
-          galleryImages = [...CONFIG.fallbackImages];
+          // If all celebrations and API failed, use root fallback dataset
+          albumCache[album.id] = album.id === 'all' ? [...ROOT_FALLBACK_IMAGES] : [];
         }
       } else {
-        // Use realistic high-fidelity wedding photo dataset
-        galleryImages = [...CONFIG.fallbackImages];
+        albumCache[album.id] = album.id === 'all' ? [...ROOT_FALLBACK_IMAGES] : [];
       }
 
       skeletonEl.style.display = 'none';
-
-      if (galleryImages.length === 0) {
-        emptyEl.style.display = 'block';
-        if (countEl) countEl.textContent = '0 Memories';
-        return;
-      }
-
-      // Update dynamic memory count
-      if (countEl) {
-        countEl.textContent = `${galleryImages.length} Memories`;
-      }
-
-      renderGallery(galleryImages);
+      renderLoadedImages(albumCache[album.id], album);
 
     } catch (err) {
-      console.warn('Error loading Google Drive feed, using wedding photo dataset:', err);
+      console.warn(`Error loading album [${album.name}]:`, err);
       skeletonEl.style.display = 'none';
-      galleryImages = [...CONFIG.fallbackImages];
-      if (countEl) countEl.textContent = `${galleryImages.length} Memories`;
-      renderGallery(galleryImages);
+
+      if (album.id === 'all') {
+        albumCache[album.id] = [...ROOT_FALLBACK_IMAGES];
+        renderLoadedImages(albumCache[album.id], album);
+      } else {
+        albumCache[album.id] = [];
+        renderLoadedImages([], album);
+      }
     }
+  }
+
+  /**
+   * Render images or show empty state
+   */
+  function renderLoadedImages(images, album) {
+    galleryImages = images || [];
+
+    if (galleryImages.length === 0) {
+      emptyEl.style.display = 'block';
+      if (countEl) countEl.textContent = '0 Memories';
+      return;
+    }
+
+    if (countEl) {
+      countEl.textContent = `${galleryImages.length} ${galleryImages.length === 1 ? 'Memory' : 'Memories'}`;
+    }
+
+    renderGallery(galleryImages, album);
   }
 
   /**
    * Render Masonry Cards
    */
-  function renderGallery(images) {
+  function renderGallery(images, album) {
     galleryEl.innerHTML = '';
     const fragment = document.createDocumentFragment();
 
@@ -223,16 +429,16 @@
           <img src="${imgData.thumb}" alt="${escapeHTML(imgData.name)}" class="photo-card__img" loading="lazy" referrerpolicy="no-referrer" ${fallbackAttr} />
           ${imgData.scriptBadge ? `<span class="photo-card__script-badge" aria-hidden="true">${imgData.scriptBadge}</span>` : ''}
           <div class="photo-card__overlay">
-            <span class="photo-card__label" style="color:#ffffff; font-size:0.75rem; letter-spacing:0.05em;">Linto &amp; Femi</span>
+            <span class="photo-card__label" style="color:#ffffff; font-size:0.75rem; letter-spacing:0.05em;">${escapeHTML(album.name)}</span>
             <div class="photo-card__actions">
-              <button class="photo-card__btn btn-card-download" data-url="${imgData.full}" data-name="${sanitizeName}" title="Download high resolution photograph without quality loss" aria-label="Download ${imgData.name}">
+              <button class="photo-card__btn btn-card-download" data-url="${imgData.full}" data-name="${sanitizeName}" title="Download original high resolution photograph" aria-label="Download ${imgData.name}">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                   <polyline points="7 10 12 15 17 10"></polyline>
                   <line x1="12" y1="15" x2="12" y2="3"></line>
                 </svg>
               </button>
-              <button class="photo-card__btn btn-card-fullscreen" title="View in fullscreen" aria-label="Fullscreen view">
+              <button class="photo-card__btn btn-card-fullscreen" title="View fullscreen" aria-label="Fullscreen view">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="15 3 21 3 21 9"></polyline>
                   <polyline points="9 21 3 21 3 15"></polyline>
@@ -290,7 +496,7 @@
       }, 1000);
       showToast('Download complete!');
     } catch (err) {
-      // Fallback if CORS or direct URL download required
+      // Direct URL download fallback
       const directUrl = url.includes('drive.google.com') ? url.replace('export=view', 'export=download') : url;
       const a = document.createElement('a');
       a.target = '_blank';
@@ -359,11 +565,13 @@
   }
 
   function nextPhoto() {
+    if (galleryImages.length <= 1) return;
     currentIndex = (currentIndex + 1) % galleryImages.length;
     updateLightbox();
   }
 
   function prevPhoto() {
+    if (galleryImages.length <= 1) return;
     currentIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length;
     updateLightbox();
   }
@@ -388,38 +596,34 @@
 
   lightboxEl.addEventListener('touchend', e => {
     touchEndX = e.changedTouches[0].screenX;
-    handleSwipe();
-  }, { passive: true });
-
-  function handleSwipe() {
     const swipeDistance = touchEndX - touchStartX;
     if (Math.abs(swipeDistance) > 45) {
       if (swipeDistance < 0) {
-        nextPhoto(); // swiped left
+        nextPhoto();
       } else {
-        prevPhoto(); // swiped right
+        prevPhoto();
       }
     }
-  }
+  }, { passive: true });
 
   /**
    * Toolbar Actions
    */
-  // Download All
+  // Download All button
   if (downloadAllBtn) {
     downloadAllBtn.addEventListener('click', () => {
-      // Direct access to the configured source of truth
-      const driveFolderUrl = `https://drive.google.com/drive/folders/${CONFIG.folderId}?usp=sharing`;
-      window.open(driveFolderUrl, '_blank', 'noopener,noreferrer');
+      const album = ALBUMS[currentAlbumKey] || ALBUMS.all;
+      window.open(album.driveUrl, '_blank', 'noopener,noreferrer');
     });
   }
 
-  // Share Album
+  // Share Album button
   if (shareBtn) {
     shareBtn.addEventListener('click', async () => {
+      const album = ALBUMS[currentAlbumKey] || ALBUMS.all;
       const shareData = {
-        title: 'Linto & Femi — Holy Matrimony Celebration Album',
-        text: 'Explore the photographs from the wedding celebration of Linto & Femi.',
+        title: `Linto & Femi — ${album.name} Celebration Album`,
+        text: `Explore celebration photographs from ${album.name} for Linto & Femi.`,
         url: window.location.href
       };
 
@@ -464,10 +668,41 @@
   }
 
   if (retryBtn) {
-    retryBtn.addEventListener('click', loadPhotographs);
+    retryBtn.addEventListener('click', () => {
+      delete albumCache[currentAlbumKey];
+      switchAlbum(currentAlbumKey, false);
+    });
   }
 
+  // Empty state buttons
+  if (emptyBrowseAll) {
+    emptyBrowseAll.addEventListener('click', () => {
+      switchAlbum('all');
+    });
+  }
+
+  // Tab buttons click listeners
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetAlbum = btn.getAttribute('data-album');
+      if (targetAlbum && targetAlbum !== currentAlbumKey) {
+        switchAlbum(targetAlbum);
+      }
+    });
+  });
+
+  // Browser back/forward navigation support
+  window.addEventListener('popstate', () => {
+    const key = getRequestedAlbumKey();
+    if (key !== currentAlbumKey) {
+      switchAlbum(key, false);
+    }
+  });
+
   // Initial Load
-  document.addEventListener('DOMContentLoaded', loadPhotographs);
+  document.addEventListener('DOMContentLoaded', () => {
+    const initialKey = getRequestedAlbumKey();
+    switchAlbum(initialKey, false);
+  });
 
 })();

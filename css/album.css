@@ -254,6 +254,83 @@ body {
   justify-content: center;
 }
 
+/* ── Celebration Function Navigation Tabs ─────────────────── */
+.album-tabs-nav {
+  position: relative;
+  z-index: 12;
+  margin-block: 0.5rem 1.25rem;
+}
+
+.album-tabs-scroll {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  overflow-x: auto;
+  padding: 0.5rem 0.25rem;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.album-tabs-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.album-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--border-gold);
+  color: var(--text-dark);
+  font-family: var(--font-sans);
+  font-size: 0.86rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.25s var(--ease-elegant);
+  box-shadow: 0 4px 14px rgba(23, 63, 43, 0.04);
+}
+
+.album-tab-btn .tab-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.album-tab-btn:hover {
+  background: #ffffff;
+  color: var(--green-deep);
+  border-color: var(--gold);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(23, 63, 43, 0.09);
+}
+
+.album-tab-btn.active {
+  background: var(--green-deep);
+  color: #fdfbf7;
+  border-color: var(--gold);
+  box-shadow: 0 8px 22px rgba(23, 63, 43, 0.24), 0 0 12px rgba(202, 163, 89, 0.35);
+  transform: translateY(-2px);
+}
+
+.album-tab-btn.active .tab-icon {
+  filter: drop-shadow(0 0 4px rgba(202, 163, 89, 0.6));
+}
+
+@media (max-width: 768px) {
+  .album-tabs-scroll {
+    justify-content: flex-start;
+    padding-inline: 0.5rem;
+  }
+  .album-tab-btn {
+    padding: 0.55rem 1rem;
+    font-size: 0.82rem;
+  }
+}
+
 /* ── Toolbar ────────────────────────────────────────────── */
 .album-toolbar-section {
   position: relative;
@@ -597,6 +674,15 @@ body {
   font-size: 0.95rem;
   color: var(--text-muted);
   margin-bottom: 1.5rem;
+}
+
+.empty-state-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  margin-top: 1.25rem;
 }
 
 /* ── Fullscreen Lightbox ────────────────────────────────── */

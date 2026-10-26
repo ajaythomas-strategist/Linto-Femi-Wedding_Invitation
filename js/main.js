@@ -467,6 +467,29 @@ function initGallery() {
     probe.src = encodeURI(testSrc);
   });
 
+  // Dynamic discovery from Journey Before Google Drive folder if available
+  const scriptUrl = window.GOOGLE_SHEETS_SCRIPT_URL || '';
+  if (scriptUrl) {
+    fetch(`${scriptUrl}?action=album&folderId=13ziMMYWdSc2l0HWxbnFHi8BLvnLsi6cg&album=journey_before`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.status === 'success' && data.folderId === '13ziMMYWdSc2l0HWxbnFHi8BLvnLsi6cg' && Array.isArray(data.images) && data.images.length > 0) {
+          data.images.forEach(img => {
+            const driveThumb = img.thumbnailUrl || `https://lh3.googleusercontent.com/d/${img.id}=w800`;
+            if (!momentsList.some(m => m.src === driveThumb || m.id === img.id)) {
+              momentsList.push({
+                id: img.id,
+                src: driveThumb,
+                alt: img.name || 'Linto & Femi — Journey Before'
+              });
+            }
+          });
+          renderGallery();
+        }
+      })
+      .catch(() => {});
+  }
+
   // Lightbox controls
   lb_prev  && lb_prev.addEventListener('click', prev);
   lb_next  && lb_next.addEventListener('click', next);
@@ -847,62 +870,199 @@ function initSkyOfBlessings() {
 /**
  * Ambient background starlight canvas (decorative non-blessing stars)
  */
+/**
+ * Ambient background starlight canvas (decorative non-blessing stars)
+ * Features:
+ * - High-DPI (Retina) crystal-clear rendering
+ * - Multi-frequency realistic atmospheric twinkling (scintillation)
+ * - Ultra-slow cinematic celestial drift across the sky vault
+ * - Delicate stardust micro-motes floating gracefully
+ * - Viewport visibility observer to pause animation when offscreen
+ * - Respects prefers-reduced-motion
+ */
 function initSkyAmbientCanvas() {
   const canvas = $('#sky-ambient-canvas');
+  const skySection = $('#sky-of-blessings');
   if (!canvas) return;
 
   const ctx = canvas.getContext('2d');
-  let animationId;
+  if (!ctx) return;
+
+  let animationId = null;
+  let isVisible = true;
+  let width = 0;
+  let height = 0;
+  let lastTime = 0;
+
+  const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function resize() {
-    canvas.width = canvas.parentElement.clientWidth || 1000;
-    canvas.height = canvas.parentElement.clientHeight || 600;
+    const parent = canvas.parentElement || skySection;
+    width = parent ? parent.clientWidth : window.innerWidth;
+    height = parent ? parent.clientHeight : 600;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
   resize();
   window.addEventListener('resize', resize);
 
+  // Generate realistic celestial star population (140 stars across upper sky)
   const ambientStars = [];
-  const starCount = 45;
+  const starCount = 140;
 
   for (let i = 0; i < starCount; i++) {
+    // 70% micro-stars, 25% small stars, 5% prominent stars
+    const rTier = Math.random();
+    let radius = 0.5;
+    if (rTier < 0.70) {
+      radius = Math.random() * 0.35 + 0.35; // 0.35 - 0.70px (tiny realistic pinpricks)
+    } else if (rTier < 0.95) {
+      radius = Math.random() * 0.35 + 0.70; // 0.70 - 1.05px
+    } else {
+      radius = Math.random() * 0.30 + 1.10; // 1.10 - 1.40px (soft prominent starlight)
+    }
+
+    // Stellar spectral colors
+    const cTier = Math.random();
+    let baseColor = '255, 255, 255'; // Diamond white
+    if (cTier < 0.25) {
+      baseColor = '232, 244, 255'; // Stellar blue-white
+    } else if (cTier < 0.50) {
+      baseColor = '255, 248, 230'; // Stellar warm ivory
+    } else if (cTier < 0.75) {
+      baseColor = '255, 228, 160'; // Soft starlight gold
+    }
+
+    const baseAlpha = Math.random() * 0.45 + 0.25;
+    const speed = Math.random() * 0.014 + 0.005;
+
     ambientStars.push({
       x: Math.random(),
-      y: Math.random() * 0.34, // Strictly in upper sky (0% – 34%), never in water
-      radius: Math.random() * 1.1 + 0.4,
-      alpha: Math.random() * 0.65 + 0.2,
-      speed: Math.random() * 0.02 + 0.008,
+      // Strictly in upper sky (2% – 32%), never in lake, couple, or church
+      y: Math.random() * 0.30 + 0.02,
+      radius: radius,
+      baseAlpha: baseAlpha,
+      twinkleAmp: Math.random() * 0.32 + 0.16,
+      speed: speed,
+      harmonicSpeed: speed * (1.618 + Math.random() * 0.5),
       phase: Math.random() * Math.PI * 2,
-      color: Math.random() > 0.4 ? '#ffd875' : '#ffffff'
+      phase2: Math.random() * Math.PI * 2,
+      baseColor: baseColor,
+      hasDiffraction: radius > 1.15,
+      // Slow majestic celestial drift: fraction of screen per second
+      driftX: prefersReducedMotion ? 0 : (Math.random() * 0.000007 + 0.000003)
     });
   }
 
+  // Ethereal stardust micro-particles (18 tiny dust motes floating gently)
+  const stardustMotes = [];
+  if (!prefersReducedMotion) {
+    for (let j = 0; j < 18; j++) {
+      stardustMotes.push({
+        x: Math.random(),
+        y: Math.random() * 0.28 + 0.03,
+        radius: Math.random() * 0.4 + 0.25,
+        alpha: Math.random() * 0.35 + 0.15,
+        driftSpeedX: (Math.random() - 0.5) * 0.000012,
+        floatFreq: Math.random() * 0.0015 + 0.0008,
+        floatAmp: Math.random() * 0.00025 + 0.0001,
+        phase: Math.random() * Math.PI * 2
+      });
+    }
+  }
+
   function render(time) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (!isVisible) return;
+
+    if (!lastTime) lastTime = time;
+    const dt = Math.min((time - lastTime), 100);
+    lastTime = time;
+
+    ctx.clearRect(0, 0, width, height);
     const t = time * 0.001;
 
+    // 1. Render ambient stars with non-linear multi-frequency scintillation
     for (let i = 0; i < ambientStars.length; i++) {
       const s = ambientStars[i];
-      const pulseAlpha = Math.max(0.1, Math.min(1, s.alpha + Math.sin(t * s.speed * 60 + s.phase) * 0.35));
 
-      ctx.beginPath();
-      ctx.arc(s.x * canvas.width, s.y * canvas.height, s.radius, 0, Math.PI * 2);
-      ctx.fillStyle = s.color;
-      ctx.globalAlpha = pulseAlpha;
-      ctx.fill();
+      // Subtle celestial drift
+      if (!prefersReducedMotion) {
+        s.x = (s.x + s.driftX * (dt / 16.6)) % 1;
+      }
 
-      // Subtle glow on brighter stars
-      if (s.radius > 1.2) {
+      const wave1 = Math.sin(t * s.speed * 60 + s.phase);
+      const wave2 = Math.sin(t * s.harmonicSpeed * 60 + s.phase2);
+      const twinkle = wave1 * 0.7 + wave2 * 0.3;
+      const alpha = prefersReducedMotion
+        ? s.baseAlpha
+        : Math.max(0.12, Math.min(0.96, s.baseAlpha + twinkle * s.twinkleAmp));
+
+      const px = s.x * width;
+      const py = s.y * height;
+
+      // Soft diffraction aura for prominent stars
+      if (s.hasDiffraction) {
+        const glowRadius = s.radius * 2.8;
+        const grad = ctx.createRadialGradient(px, py, 0, px, py, glowRadius);
+        grad.addColorStop(0, `rgba(${s.baseColor}, ${alpha * 0.45})`);
+        grad.addColorStop(0.5, `rgba(255, 216, 117, ${alpha * 0.15})`);
+        grad.addColorStop(1, 'rgba(255, 216, 117, 0)');
+        ctx.fillStyle = grad;
         ctx.beginPath();
-        ctx.arc(s.x * canvas.width, s.y * canvas.height, s.radius * 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(202, 163, 89, 0.15)';
-        ctx.globalAlpha = pulseAlpha * 0.4;
+        ctx.arc(px, py, glowRadius, 0, Math.PI * 2);
         ctx.fill();
       }
+
+      // Pinpoint star core
+      ctx.beginPath();
+      ctx.arc(px, py, s.radius, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${s.baseColor}, ${alpha})`;
+      ctx.fill();
     }
 
-    ctx.globalAlpha = 1;
+    // 2. Render subtle ethereal stardust motes
+    for (let j = 0; j < stardustMotes.length; j++) {
+      const m = stardustMotes[j];
+      m.x = (m.x + m.driftSpeedX * (dt / 16.6) + 1) % 1;
+      const curY = m.y + Math.sin(time * m.floatFreq + m.phase) * m.floatAmp;
+      const mAlpha = Math.max(0.08, Math.min(0.5, m.alpha + Math.sin(time * 0.001 + m.phase) * 0.15));
+
+      ctx.beginPath();
+      ctx.arc(m.x * width, curY * height, m.radius, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 235, 175, ${mAlpha})`;
+      ctx.fill();
+    }
+
     animationId = requestAnimationFrame(render);
+  }
+
+  // IntersectionObserver to pause loop when user scrolls away
+  if (skySection && 'IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          if (!isVisible) {
+            isVisible = true;
+            lastTime = performance.now();
+            animationId = requestAnimationFrame(render);
+          }
+        } else {
+          isVisible = false;
+          if (animationId) {
+            cancelAnimationFrame(animationId);
+            animationId = null;
+          }
+        }
+      });
+    }, { threshold: 0.05 });
+    observer.observe(skySection);
   }
 
   animationId = requestAnimationFrame(render);
@@ -1123,18 +1283,22 @@ function createSkyStarElement(wish, index, total) {
   
   const displayName = wish.showName !== false && wish.showName !== 'No' ? wish.name : 'Well-Wisher';
   starBtn.setAttribute('aria-label', `Star blessing from ${displayName}${isLatest ? ' (Latest Wish)' : ''}`);
+  starBtn.setAttribute('title', `Blessing from ${displayName} — Click to read`);
 
-  const starSize = isLatest ? 18 : (12 + (index % 3) * 2);
-  const animDelay = ((index * 0.4) % 3).toFixed(2);
+  // Refined, delicate star sizes: realistic yet clickable
+  const starSize = isLatest ? 10.5 : (7.5 + (index % 3) * 0.9);
+  
+  // Staggered organic breathing durations & phase offsets so no stars pulse in lockstep
+  const breatheDur = (3.6 + ((index * 7) % 20) * 0.12).toFixed(2); // 3.6s to 5.9s
+  const animDelay = ((index * 0.618) % 4.2).toFixed(2); // Golden ratio staggered offset
 
   starBtn.innerHTML = `
-    <div class="star-pulse-ring" style="animation-delay: ${animDelay}s;"></div>
-    <div class="star-glow-aura" style="animation-delay: ${animDelay}s;"></div>
-    <svg class="star-svg-shape" viewBox="0 0 24 24" style="width: ${starSize}px; height: ${starSize}px; animation-delay: ${animDelay}s;">
+    <div class="star-glow-aura" style="animation-duration: ${breatheDur}s; animation-delay: -${animDelay}s;"></div>
+    <svg class="star-svg-shape" viewBox="0 0 24 24" style="width: ${starSize}px; height: ${starSize}px; animation-duration: ${breatheDur}s; animation-delay: -${animDelay}s;">
       <!-- 8-Pointed Radiant Celestial Star -->
-      <path d="M12,0 L14.2,8.8 L23,11 L14.2,13.2 L12,22 L9.8,13.2 L1,11 L9.8,8.8 Z" fill="url(#starGoldGrad)"/>
-      <path d="M12,4 L13.5,9.5 L19,11 L13.5,12.5 L12,18 L10.5,12.5 L5,11 L10.5,9.5 Z" fill="#ffffff" opacity="0.95"/>
-      <circle cx="12" cy="11" r="2.5" fill="#ffffff"/>
+      <path d="M12,0 L13.8,9.2 L23,11 L13.8,12.8 L12,22 L10.2,12.8 L1,11 L10.2,9.2 Z" fill="url(#starGoldGrad)"/>
+      <path d="M12,3.2 L13.2,9.6 L19.8,11 L13.2,12.4 L12,18.8 L10.8,12.4 L4.2,11 L10.8,9.6 Z" fill="#ffffff" opacity="0.95"/>
+      <circle cx="12" cy="11" r="2.2" fill="#ffffff"/>
     </svg>
     <div class="star-core-dot"></div>
   `;
@@ -1316,18 +1480,18 @@ function setupSkyDownload() {
         const sx = (st.x / 100) * W;
         const sy = (st.y / 100) * H;
         const isLatest = st.isLatest;
-        const outerR = isLatest ? 30 : (20 + (idx % 3) * 3);
-        const innerR = outerR * 0.28;
+        const outerR = isLatest ? 16 : (11 + (idx % 3) * 1.5);
+        const innerR = outerR * 0.26;
 
         // Radiant star aura glow
-        const radGlow = ctx.createRadialGradient(sx, sy, 0, sx, sy, outerR * 2.5);
+        const radGlow = ctx.createRadialGradient(sx, sy, 0, sx, sy, outerR * 2.2);
         radGlow.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
-        radGlow.addColorStop(0.25, 'rgba(255, 235, 150, 0.7)');
-        radGlow.addColorStop(0.55, 'rgba(255, 216, 117, 0.35)');
+        radGlow.addColorStop(0.25, 'rgba(255, 235, 150, 0.65)');
+        radGlow.addColorStop(0.55, 'rgba(255, 216, 117, 0.28)');
         radGlow.addColorStop(1, 'rgba(255, 216, 117, 0)');
         ctx.fillStyle = radGlow;
         ctx.beginPath();
-        ctx.arc(sx, sy, outerR * 2.5, 0, Math.PI * 2);
+        ctx.arc(sx, sy, outerR * 2.2, 0, Math.PI * 2);
         ctx.fill();
 
         // 8-Pointed Celestial Radiant Star
@@ -1350,12 +1514,12 @@ function setupSkyDownload() {
         starGrad.addColorStop(1, '#caa359');
         ctx.fillStyle = starGrad;
         ctx.shadowColor = 'rgba(255, 216, 117, 0.9)';
-        ctx.shadowBlur = 12;
+        ctx.shadowBlur = 10;
         ctx.fill();
 
         // Diagonal secondary rays (45 deg)
-        const diagR = outerR * 0.56;
-        const diagInner = innerR * 0.45;
+        const diagR = outerR * 0.54;
+        const diagInner = innerR * 0.42;
         ctx.beginPath();
         for (let i = 0; i < 4; i++) {
           const ang = (Math.PI / 4) + (i * Math.PI / 2);
@@ -1375,7 +1539,7 @@ function setupSkyDownload() {
         ctx.arc(sx, sy, innerR * 0.65, 0, Math.PI * 2);
         ctx.fillStyle = '#ffffff';
         ctx.shadowColor = '#ffffff';
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = 6;
         ctx.fill();
         ctx.restore();
       });
@@ -2039,67 +2203,35 @@ function initPhotoAlbumsCarousel() {
     startAutoScroll();
   });
 
-  // 4. Fetch additional photos dynamically from Google Drive if available
+  // 4. Query Google Drive Albums metadata to enrich celebration cards if available
   const scriptUrl = window.GOOGLE_SHEETS_SCRIPT_URL || '';
   if (scriptUrl) {
-    fetch(`${scriptUrl}?action=album`)
+    fetch(`${scriptUrl}?action=albums`)
       .then(res => res.json())
       .then(data => {
-        if (data && Array.isArray(data.images) && data.images.length > 0) {
-          renderCarouselCards(data.images);
+        if (data && data.status === 'success' && data.albums) {
+          const albumMap = {
+            'journey_before': track.querySelector('a[href*="journey_before"]'),
+            'save_the_date':  track.querySelector('a[href*="save_the_date"]'),
+            'betrothal':      track.querySelector('a[href*="betrothal"]'),
+            'engagement':     track.querySelector('a[href*="engagement"]'),
+            'wedding':        track.querySelector('a[href*="wedding"]'),
+            'all':            track.querySelector('a[href*="album=all"]')
+          };
+          for (const [key, cardEl] of Object.entries(albumMap)) {
+            if (cardEl && data.albums[key] && typeof data.albums[key].totalImages === 'number') {
+              const count = data.albums[key].totalImages;
+              if (count > 0) {
+                const metaEl = cardEl.querySelector('.album-card__meta');
+                if (metaEl) {
+                  metaEl.textContent = `${count} ${count === 1 ? 'Photo' : 'Photos'} • ${metaEl.textContent}`;
+                }
+              }
+            }
+          }
         }
       })
       .catch(() => {});
-  }
-
-  function renderCarouselCards(images) {
-    track.innerHTML = '';
-
-    const fallbackMap = {
-      '1a_FjmQM-5R_i3R_-0iLb9_PO452Sk2IE': 'Images/Groom.jpg',
-      '1KgDn9CwmOqfldfoFaj1rRHrTyKh8ueyR': 'Images/Moments/Image 3.jpeg',
-      '1Axi4HfMKQ3P_pN807TGyQMqtwxuhNGem': 'Images/Hero.jpg',
-      '12S15NQN1QMcqf7qxnmPOqw5prFcZD5vy': 'Images/Moments/Image 2.jpeg',
-      '1ws2vrQeg3SV9z1BieaVEimCUPQpFBdF_': 'Images/Moments/Image 1.jpeg',
-      '1I-ZftraYW6cIUy4hc6Pym1Q1zRrLeXlW': 'Images/Groom.jpg',
-      '1tWb6bhiW7um9HYQg4M1TTNHFKH1rpb9J': 'Images/Moments/Image 5.jpeg',
-      '1OM2DAd-ZMhC9m3PPkasQJavYdSHoykJ1': 'Images/Bride.jpg'
-    };
-
-    const localCarouselFallbacks = [
-      'Images/Groom.jpg',
-      'Images/Moments/Image 3.jpeg',
-      'Images/Hero.jpg',
-      'Images/Moments/Image 2.jpeg',
-      'Images/Moments/Image 1.jpeg',
-      'Images/Moments/Image 5.jpeg',
-      'Images/Bride.jpg',
-      'Images/Church.jpg'
-    ];
-
-    images.forEach((item, idx) => {
-      const a = document.createElement('a');
-      a.href = 'album.html';
-      a.className = `album-card album-card--${idx + 1}`;
-      a.target = '_blank';
-      a.rel = 'noopener noreferrer';
-
-      const title = item.name ? item.name.replace(/\.[^/.]+$/, "") : `Moment ${idx + 1}`;
-      const thumb = item.thumbnailUrl || `https://lh3.googleusercontent.com/d/${item.id}=w800`;
-      const fallbackSrc = fallbackMap[item.id] || localCarouselFallbacks[idx % localCarouselFallbacks.length];
-
-      a.innerHTML = `
-        <div class="album-card__img-box">
-          <img src="${thumb}" alt="${escapeHTML(title)}" loading="lazy" class="album-card__photo" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='${fallbackSrc}';" />
-        </div>
-      `;
-      track.appendChild(a);
-    });
-
-    totalCards = images.length;
-    currentIndex = 0;
-    updateCarousel();
-    startAutoScroll();
   }
 
   // Initial calculation

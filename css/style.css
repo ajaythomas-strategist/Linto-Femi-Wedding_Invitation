@@ -5579,6 +5579,74 @@ button {
   transform: scale(1.08);
 }
 
+/* Card Info Overlay */
+.album-card__info-overlay {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  padding: 1.5rem 1.25rem 1.15rem;
+  background: linear-gradient(to top, rgba(13, 38, 26, 0.94) 0%, rgba(13, 38, 26, 0.75) 60%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  z-index: 3;
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.35s ease;
+  pointer-events: none;
+}
+
+.album-card:hover .album-card__info-overlay {
+  background: linear-gradient(to top, rgba(13, 38, 26, 0.98) 0%, rgba(13, 38, 26, 0.82) 75%, transparent 100%);
+}
+
+.album-card__badge {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #caa359;
+  background: rgba(202, 163, 89, 0.16);
+  border: 1px solid rgba(202, 163, 89, 0.35);
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  margin-bottom: 0.45rem;
+}
+
+.album-card__title {
+  font-family: var(--font-serif, 'Cormorant Garamond', Georgia, serif);
+  font-size: clamp(1.35rem, 2.2vw, 1.65rem);
+  font-weight: 500;
+  color: #ffffff;
+  line-height: 1.2;
+  margin-bottom: 0.25rem;
+}
+
+.album-card__meta {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.82);
+  font-weight: 400;
+  line-height: 1.3;
+  margin-bottom: 0.6rem;
+}
+
+.album-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #caa359;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.album-card:hover .album-card__cta {
+  color: #ffffff;
+  transform: translateX(4px);
+}
+
 /* Responsive Breakpoints for Carousel */
 @media (max-width: 980px) {
   .album-card {
@@ -5745,8 +5813,9 @@ button {
   min-height: clamp(820px, 92vh, 1050px);
   background-color: #060a12;
   color: #fff8eb;
-  padding-top: clamp(2.5rem, 4.5vw, 4rem);
+  padding-top: clamp(4.5rem, 7vw, 6.5rem);
   padding-bottom: clamp(2.5rem, 4.5vw, 4rem);
+  scroll-margin-top: 80px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -5795,49 +5864,50 @@ button {
 
 .shooting-star {
   position: absolute;
-  height: 2px;
-  background: linear-gradient(-45deg, #ffffff, rgba(255, 235, 170, 0.85), transparent);
+  height: 1.5px;
+  background: linear-gradient(-45deg, #ffffff 0%, rgba(255, 238, 185, 0.9) 30%, rgba(255, 216, 117, 0.25) 70%, transparent 100%);
   border-radius: 999px;
-  filter: drop-shadow(0 0 8px #ffd875);
+  filter: drop-shadow(0 0 4px #ffd875);
   opacity: 0;
+  pointer-events: none;
 }
 
 .shooting-star--1 {
-  top: 12%;
+  top: 9%;
   left: 18%;
-  width: 140px;
-  transform: rotate(-35deg);
-  animation: meteorStreak1 9s infinite ease-in;
+  width: 130px;
+  transform: rotate(-34deg);
+  animation: meteorStreak1 18s infinite ease-out 2s;
 }
 
 .shooting-star--2 {
-  top: 22%;
-  right: 15%;
-  width: 160px;
-  transform: rotate(-40deg);
-  animation: meteorStreak2 12s infinite ease-in 4s;
+  top: 17%;
+  right: 16%;
+  width: 150px;
+  transform: rotate(-38deg);
+  animation: meteorStreak2 24s infinite ease-out 10s;
 }
 
 .shooting-star--3 {
-  top: 8%;
-  left: 55%;
-  width: 110px;
+  top: 5%;
+  left: 48%;
+  width: 115px;
   transform: rotate(-30deg);
-  animation: meteorStreak1 15s infinite ease-in 8s;
+  animation: meteorStreak1 30s infinite ease-out 19s;
 }
 
 @keyframes meteorStreak1 {
-  0% { opacity: 0; transform: rotate(-35deg) translateX(0); }
-  4% { opacity: 1; }
-  10% { opacity: 0; transform: rotate(-35deg) translateX(280px); }
-  100% { opacity: 0; transform: rotate(-35deg) translateX(280px); }
+  0% { opacity: 0; transform: rotate(-34deg) translateX(0) scaleX(0.35); }
+  1.5% { opacity: 0.9; transform: rotate(-34deg) translateX(45px) scaleX(1); }
+  5% { opacity: 0; transform: rotate(-34deg) translateX(260px) scaleX(1.05); }
+  100% { opacity: 0; transform: rotate(-34deg) translateX(260px); }
 }
 
 @keyframes meteorStreak2 {
-  0% { opacity: 0; transform: rotate(-40deg) translateX(0); }
-  3% { opacity: 1; }
-  9% { opacity: 0; transform: rotate(-40deg) translateX(320px); }
-  100% { opacity: 0; transform: rotate(-40deg) translateX(320px); }
+  0% { opacity: 0; transform: rotate(-38deg) translateX(0) scaleX(0.35); }
+  1.5% { opacity: 0.9; transform: rotate(-38deg) translateX(55px) scaleX(1); }
+  5% { opacity: 0; transform: rotate(-38deg) translateX(290px) scaleX(1.05); }
+  100% { opacity: 0; transform: rotate(-38deg) translateX(290px); }
 }
 
 
@@ -6111,70 +6181,65 @@ button {
   outline: none;
   background: transparent;
   border: none;
-  padding: 12px;
+  padding: 14px;
+  min-width: 42px;
+  min-height: 42px;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
   pointer-events: auto;
-  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s ease, filter 0.3s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.35s ease, filter 0.35s ease;
 }
 
 .sky-star:hover {
-  transform: translate(-50%, -50%) scale(1.35);
+  transform: translate(-50%, -50%) scale(1.28);
   z-index: 20;
 }
 
+.sky-star:focus-visible {
+  transform: translate(-50%, -50%) scale(1.28);
+  outline: 2px solid #ffd875;
+  outline-offset: 4px;
+  border-radius: 50%;
+}
+
 .sky-star.active {
-  transform: translate(-50%, -50%) scale(1.45);
+  transform: translate(-50%, -50%) scale(1.35);
   z-index: 25;
 }
 
-/* Pulsing Radiant Ring */
-.star-pulse-ring {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 216, 117, 0.6);
-  pointer-events: none;
-  animation: starPulseRing 3s infinite cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-@keyframes starPulseRing {
-  0% { transform: scale(0.6); opacity: 0.9; }
-  70% { transform: scale(1.6); opacity: 0; }
-  100% { transform: scale(1.6); opacity: 0; }
-}
-
+/* Soft Breathing Radiant Aura */
 .star-glow-aura {
   position: absolute;
-  width: 24px;
-  height: 24px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 235, 170, 0.85) 0%, rgba(202, 163, 89, 0.3) 45%, transparent 75%);
-  filter: blur(3px);
+  background: radial-gradient(circle, rgba(255, 235, 170, 0.72) 0%, rgba(202, 163, 89, 0.26) 45%, transparent 75%);
+  filter: blur(2.5px);
   pointer-events: none;
-  animation: starAmbientGlow 3s infinite ease-in-out;
+  animation: starSoftBreathe 4.2s infinite ease-in-out;
 }
 
 .star-svg-shape {
   fill: #fffdf5;
-  filter: drop-shadow(0 0 6px rgba(255, 220, 130, 0.9)) drop-shadow(0 0 12px rgba(202, 163, 89, 0.7));
+  filter: drop-shadow(0 0 3px rgba(255, 220, 130, 0.85)) drop-shadow(0 0 7px rgba(202, 163, 89, 0.5));
   transition: transform 0.3s ease;
   position: relative;
   z-index: 2;
+  animation: starSoftBreathe 4.2s infinite ease-in-out;
 }
 
 .star-core-dot {
   position: absolute;
-  width: 3px;
-  height: 3px;
+  width: 2.2px;
+  height: 2.2px;
   border-radius: 50%;
   background: #ffffff;
-  box-shadow: 0 0 5px #ffffff, 0 0 10px #ffd875;
+  box-shadow: 0 0 4px #ffffff, 0 0 8px #ffd875;
   z-index: 3;
+  pointer-events: none;
 }
 
 /* Latest Blessing Star Highlight */
@@ -6183,26 +6248,25 @@ button {
 }
 
 .sky-star--latest .star-glow-aura {
-  width: 32px;
-  height: 32px;
-  background: radial-gradient(circle, rgba(255, 235, 170, 1) 0%, rgba(202, 163, 89, 0.45) 45%, transparent 72%);
-  filter: blur(4px);
-  animation: starAmbientGlow 2.5s infinite ease-in-out;
+  width: 24px;
+  height: 24px;
+  background: radial-gradient(circle, rgba(255, 240, 185, 0.88) 0%, rgba(202, 163, 89, 0.36) 48%, transparent 75%);
+  filter: blur(3px);
 }
 
 .sky-star--latest .star-svg-shape {
-  filter: drop-shadow(0 0 12px #ffd875) drop-shadow(0 0 28px rgba(255, 216, 117, 1));
-  animation: latestStarPulse 2.5s infinite ease-in-out;
+  filter: drop-shadow(0 0 6px #ffd875) drop-shadow(0 0 14px rgba(255, 216, 117, 0.85));
 }
 
-@keyframes latestStarPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.18); }
-}
-
-@keyframes starAmbientGlow {
-  0%, 100% { opacity: 0.6; transform: scale(0.85); }
-  50% { opacity: 1; transform: scale(1.15); }
+@keyframes starSoftBreathe {
+  0%, 100% {
+    opacity: 0.62;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 0.98;
+    transform: scale(1.08);
+  }
 }
 
 /* Floating Guest Name Badge below the star — hidden per design update */
@@ -6783,16 +6847,19 @@ button {
   }
 
   .sky-star {
-    padding: 4px !important;
-    transform: translate(-50%, -50%) scale(0.68) !important;
+    padding: 10px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    transform: translate(-50%, -50%) scale(0.8) !important;
   }
 
-  .sky-star:hover {
-    transform: translate(-50%, -50%) scale(0.85) !important;
+  .sky-star:hover,
+  .sky-star:active {
+    transform: translate(-50%, -50%) scale(0.92) !important;
   }
 
   .sky-star.active {
-    transform: translate(-50%, -50%) scale(0.95) !important;
+    transform: translate(-50%, -50%) scale(0.98) !important;
   }
 
   .sky-star-popover {
@@ -7029,6 +7096,7 @@ button {
 }
 
 /* Reduced Motion Support */
+/* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
   .albums-marquee-track {
     animation: none !important;
@@ -7036,6 +7104,17 @@ button {
   }
   .blessing-card--new {
     animation: none !important;
+  }
+  .sky-shooting-stars,
+  .shooting-star,
+  .star-glow-aura,
+  .star-svg-shape,
+  .sky-header-star-crest,
+  .pill-sparkle {
+    animation: none !important;
+  }
+  .sky-star {
+    transition: none !important;
   }
 }
 

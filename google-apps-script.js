@@ -32,8 +32,19 @@
 
 // Configuration
 const SPREADSHEET_ID = '19TFYKdVRnqmQjT_R7n5rOukO1MdpIDj3mjsM3Plu0O0'; // Linto & Femi Google Sheet
-const DRIVE_FOLDER_ID = '1jchGI4-6ybS0-vmh8HYU9cSWWV3BpJvU'; // Celebration Album Google Drive Folder
+const DRIVE_FOLDER_ID = '1jchGI4-6ybS0-vmh8HYU9cSWWV3BpJvU'; // Celebration Album Parent Google Drive Folder
 const SHEET_NAME = 'Sheet1'; // Default Sheet Tab Name
+
+// Google Drive Function Folders Mapping
+const ALBUM_FOLDERS = {
+  'root':           '1jchGI4-6ybS0-vmh8HYU9cSWWV3BpJvU', // Parent Images Folder
+  'all':            '1jchGI4-6ybS0-vmh8HYU9cSWWV3BpJvU', // All Celebrations
+  'journey_before': '13ziMMYWdSc2l0HWxbnFHi8BLvnLsi6cg', // Journey Before Folder
+  'save_the_date':  '1mKY8tjwwi21QWsKi_I5Oef0RyVxJiFpq', // Save the Date Folder
+  'betrothal':      '1OHIJhWuivdXyHieO6rAPzlOeQDA1vC3d', // Betrothal Folder
+  'engagement':     '19kTGahQbbYUhgXjpgMC8Aqi24Qp508or', // Engagement Folder
+  'wedding':        '1yoMxW2mhMZ3DRVMPbzwR1wG_FloOF_ml'  // Holy Matrimony / Wedding Folder
+};
 
 /**
  * Handle GET Requests (Fetch Wishes or Album Images)
@@ -43,7 +54,13 @@ function doGet(e) {
     const action = (e && e.parameter && e.parameter.action) || 'wishes';
 
     if (action === 'album') {
-      return getAlbumImages();
+      const albumKey = (e && e.parameter && e.parameter.album) || '';
+      const folderId = (e && e.parameter && e.parameter.folderId) || 
+                       (albumKey && ALBUM_FOLDERS[albumKey]) || 
+                       DRIVE_FOLDER_ID;
+      return getAlbumImages(folderId, albumKey);
+    } else if (action === 'albums') {
+      return getAllAlbumsSummary();
     } else {
       return getWishes();
     }
@@ -142,10 +159,13 @@ function getWishes() {
 }
 
 /**
- * Fetch all photos from the Google Drive Folder
+ * Fetch all photos from a specific Google Drive Folder
+ * @param {string} folderId - Target Google Drive folder ID
+ * @param {string} albumKey - Optional album identifier/slug
  */
-function getAlbumImages() {
-  const folder = DriveApp.getFolderById(DRIVE_FOLDER_ID);
+function getAlbumImages(folderId, albumKey) {
+  const targetFolderId = folderId || DRIVE_FOLDER_ID;
+  const folder = DriveApp.getFolderById(targetFolderId);
   const files = folder.getFiles();
   const images = [];
 
@@ -159,7 +179,7 @@ function getAlbumImages() {
 
       images.push({
         id: fileId,
-        name: fileName || 'Linto & Femi — Wedding Moment',
+        name: fileName || 'Linto & Femi — Celebration Moment',
         thumbnailUrl: 'https://lh3.googleusercontent.com/d/' + fileId + '=w800',
         fullUrl: 'https://lh3.googleusercontent.com/d/' + fileId + '=w1600',
         downloadUrl: 'https://drive.google.com/uc?export=download&id=' + fileId,
@@ -168,7 +188,48 @@ function getAlbumImages() {
     }
   }
 
-  return createJsonResponse({ status: 'success', total: images.length, images: images });
+  // Sort newest first
+  images.sort(function(a, b) {
+    return new Date(b.dateCreated) - new Date(a.dateCreated);
+  });
+
+  return createJsonResponse({
+    status: 'success',
+    folderId: targetFolderId,
+    album: albumKey || 'custom',
+    folderName: folder.getName(),
+    total: images.length,
+    images: images
+  });
+}
+
+/**
+ * Return summary and file count across all celebration albums
+ */
+function getAllAlbumsSummary() {
+  const summary = {};
+  for (const key in ALBUM_FOLDERS) {
+    try {
+      const fId = ALBUM_FOLDERS[key];
+      const folder = DriveApp.getFolderById(fId);
+      const files = folder.getFiles();
+      let count = 0;
+      while (files.hasNext()) {
+        const file = files.next();
+        if (file.getMimeType().indexOf('image/') !== -1) {
+          count++;
+        }
+      }
+      summary[key] = {
+        folderId: fId,
+        folderName: folder.getName(),
+        totalImages: count
+      };
+    } catch (e) {
+      summary[key] = { folderId: ALBUM_FOLDERS[key], error: e.toString() };
+    }
+  }
+  return createJsonResponse({ status: 'success', albums: summary });
 }
 
 /**

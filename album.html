@@ -45,7 +45,7 @@
   <header class="album-header">
     <div class="container album-header__inner">
       
-      <div class="album-header__quote-left" aria-hidden="true">
+      <div class="album-header__quote-left" id="album-quote-left" aria-hidden="true">
         <span>Two Hearts One Journey</span>
         <span class="script-heart">♡</span>
       </div>
@@ -53,19 +53,19 @@
       <div class="album-header__center">
         <div class="album-eyebrow">
           <span class="eyebrow-line"></span>
-          <span class="eyebrow-text">OUR CELEBRATION ALBUM</span>
+          <span class="eyebrow-text" id="album-eyebrow">OUR CELEBRATION ALBUM</span>
           <span class="eyebrow-line"></span>
         </div>
 
-        <h1 class="album-title">Holy Matrimony</h1>
+        <h1 class="album-title" id="album-title">Holy Matrimony</h1>
         
-        <p class="album-meta">
-          <span>7 NOVEMBER 2026</span>
+        <p class="album-meta" id="album-meta">
+          <span id="album-date">7 NOVEMBER 2026</span>
           <span class="meta-sep">|</span>
-          <span>ST. MARY'S CHURCH, CHITTISSERY</span>
+          <span id="album-venue">ST. MARY'S CHURCH, CHITTISSERY</span>
         </p>
 
-        <p class="album-tagline">&ldquo;Sacred moments, cherished forever.&rdquo;</p>
+        <p class="album-tagline" id="album-tagline">&ldquo;Sacred moments, cherished forever.&rdquo;</p>
 
         <!-- Leaf divider ornament -->
         <div class="album-divider" aria-hidden="true">
@@ -77,13 +77,45 @@
         </div>
       </div>
 
-      <!-- Faded Architectural Church Illustration Accent -->
-      <div class="album-header__church-accent" aria-hidden="true">
-        <img src="Images/Church.jpg" alt="" class="church-accent-img" />
+      <!-- Architectural Illustration Accent -->
+      <div class="album-header__church-accent" id="album-header-accent" aria-hidden="true">
+        <img src="Images/Church.jpg" alt="" class="church-accent-img" id="church-accent-img" />
       </div>
 
     </div>
   </header>
+
+  <!-- Celebration Function Navigation Tabs -->
+  <nav class="album-tabs-nav" aria-label="Celebration Albums Navigation">
+    <div class="container">
+      <div class="album-tabs-scroll" role="tablist">
+        <button class="album-tab-btn active" role="tab" aria-selected="true" data-album="all" id="tab-all">
+          <span class="tab-icon">✨</span>
+          <span class="tab-title">All Celebrations</span>
+        </button>
+        <button class="album-tab-btn" role="tab" aria-selected="false" data-album="journey_before" id="tab-journey_before">
+          <span class="tab-icon">🌿</span>
+          <span class="tab-title">Journey Before</span>
+        </button>
+        <button class="album-tab-btn" role="tab" aria-selected="false" data-album="save_the_date" id="tab-save_the_date">
+          <span class="tab-icon">💌</span>
+          <span class="tab-title">Save the Date</span>
+        </button>
+        <button class="album-tab-btn" role="tab" aria-selected="false" data-album="betrothal" id="tab-betrothal">
+          <span class="tab-icon">🕊️</span>
+          <span class="tab-title">The Betrothal</span>
+        </button>
+        <button class="album-tab-btn" role="tab" aria-selected="false" data-album="engagement" id="tab-engagement">
+          <span class="tab-icon">💍</span>
+          <span class="tab-title">Engagement</span>
+        </button>
+        <button class="album-tab-btn" role="tab" aria-selected="false" data-album="wedding" id="tab-wedding">
+          <span class="tab-icon">⛪</span>
+          <span class="tab-title">Holy Matrimony</span>
+        </button>
+      </div>
+    </div>
+  </nav>
 
   <!-- Album Toolbar -->
   <section class="album-toolbar-section">
@@ -106,7 +138,7 @@
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
               <path d="M12 2v20M17 5H7M4 10l8-7 8 7v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"></path>
             </svg>
-            <span>Holy Matrimony</span>
+            <span id="toolbar-venue">Holy Matrimony</span>
           </div>
 
           <span class="toolbar-divider" aria-hidden="true">|</span>
@@ -118,12 +150,19 @@
               <line x1="8" y1="2" x2="8" y2="6"></line>
               <line x1="3" y1="10" x2="21" y2="10"></line>
             </svg>
-            <span>7 November 2026</span>
+            <span id="toolbar-date">7 November 2026</span>
           </div>
         </div>
 
         <div class="album-toolbar__actions">
-          <button id="btn-download-all" class="album-btn album-btn--primary" aria-label="Download all high resolution photographs">
+          <a id="btn-drive-folder" href="https://drive.google.com/drive/folders/1jchGI4-6ybS0-vmh8HYU9cSWWV3BpJvU" target="_blank" rel="noopener noreferrer" class="album-btn album-btn--primary" aria-label="Open celebration folder in Google Drive">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span>Open in Drive</span>
+          </a>
+
+          <button id="btn-download-all" class="album-btn album-btn--outline" aria-label="Download all high resolution photographs">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
               <polyline points="7 10 12 15 17 10"></polyline>
@@ -180,11 +219,20 @@
         <div class="skeleton-card skeleton-card--tall"></div>
       </div>
 
-      <!-- Empty State -->
+      <!-- Empty State with Event Context & Drive Integration -->
       <div id="gallery-empty" class="gallery-empty" style="display:none;">
         <div class="gallery-empty__icon" aria-hidden="true">🌿</div>
-        <h2 class="gallery-empty__title">Our memories are waiting to be written...</h2>
-        <p class="gallery-empty__desc">Photographs from our celebration will appear here soon.</p>
+        <h2 class="gallery-empty__title" id="empty-title">Our memories are waiting to be written...</h2>
+        <p class="gallery-empty__desc" id="empty-desc">Photographs from our celebration will appear here soon.</p>
+        <div class="empty-state-actions">
+          <a id="empty-drive-btn" href="#" target="_blank" rel="noopener noreferrer" class="album-btn album-btn--primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span>Open Google Drive Folder</span>
+          </a>
+          <button id="empty-browse-all" class="album-btn album-btn--outline">Browse All Photos</button>
+        </div>
       </div>
 
       <!-- Error State -->
